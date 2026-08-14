@@ -1,7 +1,9 @@
-docs/Freenove_ESP32_S3_WROOM_Board-main/
-docs/Freenove_ESP32_S3_WROOM_Board-main.zip
+# Vendor SDK — ~370 MB, redownloadable from Freenove. Never committed.
+docs/vendor/
+
+# WiFi credentials for the camera web server.
 Software/tests/Arduino/Sketch_07.1_CameraWebServer/arduino_secrets.h
 
 # Compiled host-side binary. Rebuild from ds4-monitor.c rather than committing it:
 #   gcc -O2 -o ds4-monitor ds4-monitor.c
-Software/tests/Arduino/ps4-controller/ds4-monitor
+Software/tools/ds4-monitor/ds4-monitor
