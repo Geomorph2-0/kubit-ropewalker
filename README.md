@@ -106,9 +106,10 @@ natively and the IDE follows them on Linux.
 
 ## Building the host tool
 
-`ds4-monitor` is a Linux DualShock 4 input monitor, not firmware. The compiled
-binary is gitignored; rebuild it with:
+`ds4-monitor` is a Linux DualShock 4 input monitor, not firmware. It needs SDL2
+(`sudo apt install libsdl2-dev`). The compiled binary is gitignored; rebuild it
+with:
 
 ```bash
-gcc -O2 -o Software/tools/ds4-monitor/ds4-monitor Software/tools/ds4-monitor/ds4-monitor.c
+gcc -O2 -o Software/tools/ds4-monitor/ds4-monitor Software/tools/ds4-monitor/ds4-monitor.c -lSDL2 -lm
 ```

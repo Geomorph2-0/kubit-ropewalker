@@ -4,6 +4,7 @@ docs/vendor/
 # WiFi credentials for the camera web server.
 Software/tests/Arduino/Sketch_07.1_CameraWebServer/arduino_secrets.h
 
-# Compiled host-side binary. Rebuild from ds4-monitor.c rather than committing it:
-#   gcc -O2 -o ds4-monitor ds4-monitor.c
+# Compiled host-side binary. Rebuild from ds4-monitor.c rather than committing it.
+# Needs SDL2 (libsdl2-dev); without -lSDL2 the link fails on undefined references:
+#   gcc -O2 -o ds4-monitor ds4-monitor.c -lSDL2 -lm
 Software/tools/ds4-monitor/ds4-monitor
