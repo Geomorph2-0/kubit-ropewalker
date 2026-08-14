@@ -1,7 +1,7 @@
 # Freenove ESP32-S3-WROOM CAM Board — Verified Spec Sheet
 
 **Board variant:** N16R8 (16 MB flash / 8 MB octal PSRAM)
-**Verified on:** 21 July 2026, via `board_health_check.ino`
+**Verified on:** 21 July 2026, via [`board_health_check.ino`](../../Software/tests/Arduino/board_health_check/)
 **Status:** ALL CHECKS PASSED — cleared for camera bring-up
 
 All figures below are *measured on the actual unit*, not copied from marketing

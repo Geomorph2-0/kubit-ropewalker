@@ -3,11 +3,11 @@
 **Logged:** 13 August 2026
 **Status:** both boards fully characterised. Nothing outstanding.
 **Role:** the two classic ESP32s. One is the ground controller, one rides the
-robot. Both are the *other* MCU referenced in `esp32s3_spec_sheet.md` §5 — the
+robot. Both are the *other* MCU referenced in [`esp32s3_spec_sheet.md`](esp32s3_spec_sheet.md) §5 — the
 S3 CAM board keeps camera + WiFi upload duty.
 
 **Boards:** 38-pin ESP32 DevKit, micro-USB, **CP2102** USB-UART bridge.
-Read out via `esp32-specs.ino` on both units.
+Read out via [`esp32-specs-check.ino`](../../Software/tests/Arduino/esp32-specs-check/) on both units.
 
 ## Hardware — measured independently on each board, identical
 
@@ -55,7 +55,7 @@ come off the line in sequence, so never assume one address from the other.
 > and the robot's `esp_read_mac()` output then matched that factory reading
 > exactly. Anywhere the reversed form was recorded, it is void.
 >
-> The S3 CAM board's `D0:CF:13:00:2C:E0` in `esp32s3_spec_sheet.md` was checked
+> The S3 CAM board's `D0:CF:13:00:2C:E0` in [`esp32s3_spec_sheet.md`](esp32s3_spec_sheet.md) was checked
 > against the same registry and **is correct** — `D0:CF:13` is an Espressif
 > OUI. No correction needed there.
 

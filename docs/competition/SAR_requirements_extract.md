@@ -1,6 +1,6 @@
 # Search & Rescue (Activity Two) — Complete Extraction
 
-Source: `Version2_SST_Makerspace_Competition_Document_2026.pdf` — *SST Makerspace 3.0, Competition Brief V2, October 2026, The Rope Runner Challenge*.
+Source: [`Version2_SST Makerspace Competition Document 2026.pdf`](<Version2_SST Makerspace Competition Document 2026.pdf>) — *SST Makerspace 3.0, Competition Brief V2, October 2026, The Rope Runner Challenge*.
 
 Everything below is taken from the document. Nothing has been added, interpreted, or filled in. Where the document contradicts itself, both versions are shown. Page numbers refer to the PDF's own printed page numbers where available.
 
