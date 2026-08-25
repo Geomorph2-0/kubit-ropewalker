@@ -7,6 +7,7 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 #include "board_config.h"
+#include "arduino_secrets.h"
 // ===================
 // Select camera model
 // ===================
@@ -30,8 +31,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char* ssid     = "********";
-const char* password = "********";
+const char* ssid     = SECRET_SSID3;
+const char* password = SECRET_PASS3;
 camera_config_t config;
 
 void startCameraServer();
@@ -92,10 +93,10 @@ void camera_init() {
   config.xclk_freq_hz = 10000000;
   config.frame_size = FRAMESIZE_QVGA;
   config.pixel_format = PIXFORMAT_JPEG; // for streaming
-  config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
+  config.grab_mode = CAMERA_GRAB_LATEST;
   config.fb_location = CAMERA_FB_IN_PSRAM;
   config.jpeg_quality = 10;
-  config.fb_count = 1;
+  config.fb_count = 2;
   
   // camera init
   esp_err_t err = esp_camera_init(&config);
@@ -111,6 +112,7 @@ void camera_init() {
   }
 
   sensor_t * s = esp_camera_sensor_get();
+  Serial.printf("Camera PID: 0x%02x\n", s->id.PID);
   // drop down frame size for higher initial frame rate
   uint16_t pid = s->id.PID;
   if(pid == OV2640_PID){
