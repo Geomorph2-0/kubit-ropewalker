@@ -1,10 +1,10 @@
 /*
- * controller_stage1_joystick.ino — Stage 1 of the controller build.
+ * controller-stage1-joystick.ino — Stage 1 of the controller build.
  *
  * TARGET BOARD: classic ESP32-D0WD-V3, 38-pin WROOM-32 DevKit (the controller,
  * MAC F4:2D:C9:71:7B:0C). This is the classic-ESP32 counterpart to the S3 bench
- * sketch in custom-controller-v1/ — same maths, different pins, one stick
- * instead of two.
+ * sketch in dual_joystick_s3/ — same maths, different pins, one stick instead
+ * of two.
  *
  * SCOPE: read one joystick and print it. No buttons, no LEDs, no radio. Those
  * are stages 2, 3 and 4.

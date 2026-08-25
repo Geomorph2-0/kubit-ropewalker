@@ -1,5 +1,5 @@
 /*
- * controller_stage2_buttons.ino — Stage 2 of the controller build.
+ * controller-stage2-buttons.ino — Stage 2 of the controller build.
  *
  * TARGET BOARD: classic ESP32-D0WD-V3, 38-pin WROOM-32 DevKit (the controller,
  * MAC F4:2D:C9:71:7B:0C).

@@ -1,5 +1,5 @@
 /*
- * ble_scanner.ino — BLE advertisement scanner for ESP32-S3
+ * bluetooth-scanner.ino — BLE advertisement scanner for ESP32-S3
  *
  * NOTE: The ESP32-S3 supports Bluetooth LE 5 only. It has NO Bluetooth Classic
  * radio, so classic device inquiry (HC-05, phone audio pairing, SPP) is not
@@ -11,7 +11,8 @@
  *   PSRAM            : OPI PSRAM
  *   Partition Scheme : 16M Flash (3MB APP / 9.9MB FATFS)
  *   USB CDC On Boot  : Disabled (flashing via UART bridge port)
- *   Core             : Arduino-ESP32 3.3.10 / ESP-IDF 5.5.4
+ *   Core             : Arduino-ESP32 3.3.10 / ESP-IDF v5.5.2-729-g87912cd291
+ *                       (see esp32s3_spec_sheet.md §7 — not "5.5.4")
  *
  * If USB CDC On Boot is Disabled, open the serial monitor on the UART bridge
  * port, not the native USB port, or you will see nothing.

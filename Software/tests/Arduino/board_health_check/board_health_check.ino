@@ -15,7 +15,7 @@
  *
  * Required Tools settings:
  *   Board: ESP32S3 Dev Module | PSRAM: OPI PSRAM | Flash Size: 16MB (128Mb)
- *   USB CDC On Boot: Enabled  | Partition: 16M Flash (3MB APP/9.9MB FATFS)
+ *   USB CDC On Boot: Disabled (using UART bridge port) | Partition: 16M Flash (3MB APP/9.9MB FATFS)
  *
  * Expected PASS output: PSRAM 8 MB, integrity OK, flash 16 MB, 2 cores.
  * -----------------------------------------------------------------------------

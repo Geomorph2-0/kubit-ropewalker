@@ -1,11 +1,13 @@
-                                                          /*
+/*
  * dual_joystick_s3.ino — read two analog joystick modules (KY-023 style) on an
  * ESP32-S3 and print normalised axis values over serial.
  *
  * TARGET BOARD: Freenove ESP32-S3-WROOM CAM (N16R8). This is the bench-test
- * version. For the classic ESP32 build, see dual_joystick.ino — the pin
- * constraints on the two chips are different enough that they are separate
- * sketches rather than one with an #ifdef.
+ * version, exploring a two-stick layout on the S3 before the controller build
+ * committed to one stick on the classic ESP32. It was never carried forward
+ * onto the S3 board — the classic-ESP32 counterpart that *was* built out is
+ * controller-stage1-joystick.ino, one stick, different pins, same maths.
+ * Kept here for reference, not superseded by it.
  *
  * WIRING (both modules share the 3.3 V and GND rails)
  *

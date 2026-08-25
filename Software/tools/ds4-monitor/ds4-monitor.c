@@ -1,5 +1,5 @@
 /*
- * ds4_monitor.c — read a DualShock 4 (or DualSense, or most other pads) and
+ * ds4-monitor.c — read a DualShock 4 (or DualSense, or most other pads) and
  * print its live state to the console. Runs on the PC. No microcontroller.
  *
  * Uses SDL2's GameController API, which carries a built-in mapping database.
@@ -9,18 +9,18 @@
  *
  * BUILD
  *   Linux    sudo apt install libsdl2-dev
- *            gcc ds4_monitor.c -o ds4_monitor $(sdl2-config --cflags --libs) -lm
+ *            gcc ds4-monitor.c -o ds4-monitor $(sdl2-config --cflags --libs) -lm
  *
  *   macOS    brew install sdl2
- *            gcc ds4_monitor.c -o ds4_monitor $(sdl2-config --cflags --libs) -lm
+ *            gcc ds4-monitor.c -o ds4-monitor $(sdl2-config --cflags --libs) -lm
  *
  *   Windows  (MSYS2 / MinGW-w64)
  *            pacman -S mingw-w64-x86_64-SDL2
- *            gcc ds4_monitor.c -o ds4_monitor.exe -lmingw32 -lSDL2main -lSDL2
+ *            gcc ds4-monitor.c -o ds4-monitor.exe -lmingw32 -lSDL2main -lSDL2
  *
  * RUN
- *   ./ds4_monitor            live panel, redraws in place
- *   ./ds4_monitor --events   plain scrolling log, one line per press/release
+ *   ./ds4-monitor            live panel, redraws in place
+ *   ./ds4-monitor --events   plain scrolling log, one line per press/release
  *
  * If <SDL.h> is not found, your install may need <SDL2/SDL.h> instead.
  */

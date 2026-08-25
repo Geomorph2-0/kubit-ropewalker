@@ -1,5 +1,5 @@
 /*
- * button_toggle.ino — latching pushbutton for ESP32-S3.
+ * button-state.ino — latching pushbutton for ESP32-S3.
  *
  * One press sets the state HIGH and it stays HIGH. The next press sets it LOW
  * and it stays LOW. Repeats indefinitely.
