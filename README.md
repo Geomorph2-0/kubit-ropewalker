@@ -52,8 +52,9 @@ tutorial numbering, so don't rename them.
 
 ## Controller firmware
 
-**Current stage: 2 (complete, modular rebuild).** Joystick and buttons work;
-nothing transmits yet.
+**Current stage: 3b (indicators, battery sensing, arm interlock).** Joystick,
+buttons, status LEDs and battery sensing all work; the arm latch now also
+refuses to close on a flat cell. Nothing transmits yet.
 
 Built for **Arduino IDE**. Open
 [Software/controller-firmware/controller-firmware.ino](Software/controller-firmware/controller-firmware.ino),
@@ -64,11 +65,14 @@ select the classic ESP32 DevKit board, and Verify. Serial monitor at **115200**.
 | [config.h](Software/controller-firmware/config.h) | Every GPIO and tuning constant. Nothing else hardcodes a pin. |
 | [joystick.*](Software/controller-firmware/joystick.cpp) | Boot calibration, 8× oversampling, deadzone, normalisation |
 | [buttons.*](Software/controller-firmware/buttons.cpp) | Debounce, press/release/long-hold edges |
+| [battery.*](Software/controller-firmware/battery.cpp) | Divider read, filtering, level with hysteresis, simulation |
 | [control.*](Software/controller-firmware/control.cpp) | Arm latch, speed mode, transmitted intent — the policy layer |
-| [ui.*](Software/controller-firmware/ui.cpp) | 10 Hz status line, serial commands |
+| [leds.*](Software/controller-firmware/leds.cpp) | Mode-driven LED animation and power-on self test |
+| [ui.*](Software/controller-firmware/ui.cpp) | 10 Hz status line, serial commands, LED mapping |
 
-Dependencies flow one way: `.ino` → `control` → `{joystick, buttons}`, with `ui`
-reading everything. No module calls another sideways.
+Dependencies flow one way: `.ino` → `control` → `{joystick, buttons, battery}`,
+with `leds` driven by `ui` and `ui` reading everything else. No module calls
+another sideways.
 
 ### Wiring
 
@@ -80,6 +84,10 @@ reading everything. No module calls another sideways.
 | ARM | 25 | switch → GND; hold 2 s to arm or disarm |
 | SPEED | 27 | switch → GND; toggles precision / full |
 | CAPTURE | 14 | switch → GND |
+| LED green | 18 | heartbeat pulse |
+| LED yellow | 19 | armed indicator |
+| LED red | 23 | controller cell level (off / blink / on) |
+| Battery sense | 35 | 2:1 divider off the controller's own 1S Li-ion cell |
 
 Module VCC must be on **3.3 V**. Both axes are on **ADC1** on purpose — ADC2
 reads fail silently once the WiFi radio starts, so an ADC2 pin would work on the
@@ -88,13 +96,15 @@ bench and die the moment ESP-NOW comes up at stage 4.
 ### Behaviour
 
 Boots **DISARMED** in **PRECISION** mode. Arming is refused while the stick is
-off-centre, and transmitted values are forced to hard zero while disarmed — so
-no single bug on either side can drive the motors alone. Press `c` in the serial
-monitor to recalibrate the stick centre.
+off-centre or while the controller's own cell is below `Batt::V_ARM_MIN`
+(3.30 V), and transmitted values are forced to hard zero while disarmed — so
+no single bug on either side can drive the motors alone. Disarming is never
+gated on anything. Press `c` in the serial monitor to recalibrate the stick
+centre, `t` to re-run the LED self test, or `v3.45` / `v` to simulate or clear
+a battery voltage for testing.
 
 ## Roadmap
 
-- **Stage 3** — status LEDs (GPIO 18/19/23) and battery sense (GPIO 35)
 - **Stage 4** — ESP-NOW link: `protocol.h` + `link.*`, no changes to existing modules
 - **Stage 6** — failsafe rules, which live in `control.*` so the whole safety story stays on one screen
 

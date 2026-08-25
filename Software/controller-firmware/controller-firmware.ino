@@ -1,11 +1,12 @@
 /*
  * controller-firmware.ino — rope-walker ground controller.
  *
- * Stage 3a: indicators and battery sensing added to the modular stage 2.
+ * Stage 3b: the battery arming interlock, on top of 3a's indicators and sensing.
  *
- * 3a is purely additive. joystick.*, buttons.* and control.* are untouched, so
- * nothing about arming, the stick or the transmitted intent can have regressed.
- * Any behavioural difference from stage 2 is a bug in the new modules.
+ * 3a was purely additive — joystick.*, buttons.* and control.* were untouched.
+ * 3b is the first change to the policy layer since stage 2: control.cpp gains a
+ * single branch that refuses to close the arm latch below Batt::V_ARM_MIN. That
+ * branch is the entire delta, which is why it was worth separating from 3a.
  *
  * TARGET BOARD: classic ESP32-D0WD-V3, 38-pin WROOM-32 DevKit.
  *               Controller MAC F4:2D:C9:71:7B:0C.
@@ -23,7 +24,6 @@
  * ui reads everything. No module calls another sideways, so nothing here has a
  * circular include and each module can be reasoned about alone.
  *
- * Stage 3b adds one branch to control.cpp: refuse to arm below 3.30 V.
  * Stage 4 adds protocol.h and link.* without touching any of the above.
  *
  * WIRING
@@ -84,8 +84,9 @@ void loop() {
    * must see this pass's stick position before deciding whether arming is
    * allowed, and UI must run after it to display the decision just made.
    *
-   * Battery runs before Control even though stage 3a's Control ignores it, so
-   * that 3b's refuse-to-arm rule needs no reordering — only a new branch.
+   * Battery must run before Control, because Control's refuse-to-arm rule reads
+   * this pass's filtered cell voltage. 3a already had this order for exactly
+   * that reason, so 3b needed no reordering — only the new branch.
    *
    * Leds runs last and every pass: UI sets modes on its 100 ms tick, but the
    * animation needs finer granularity than that to look smooth.

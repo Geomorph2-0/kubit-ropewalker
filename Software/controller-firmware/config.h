@@ -118,7 +118,19 @@ namespace Batt {
   constexpr float V_LOW      = 3.50f;   // below this: critical
   constexpr float HYSTERESIS = 0.15f;
 
-  // V_ARM_MIN = 3.30f arrives in stage 3b, with the arming interlock.
+  /* The arming floor. Below this the latch refuses to close, so a cell that is
+   * already too flat to finish a run cannot be the reason the robot stops
+   * responding halfway along the rope.
+   *
+   * It sits below V_LOW on purpose. CRITICAL is a warning about a cell that is
+   * nearly done but still perfectly able to drive; this is the hard refusal, and
+   * the gap between them is the window in which the red LED is telling you to
+   * land before the controller stops letting you take off.
+   *
+   * No hysteresis, because none is needed: the test runs once, at the instant
+   * ARM completes its hold, and never again. Nothing here can oscillate.
+   */
+  constexpr float V_ARM_MIN  = 3.30f;
 }
 
 // ----------------------------------------------------------------- system ---

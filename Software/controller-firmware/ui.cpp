@@ -82,7 +82,7 @@ namespace UI {
 
 void banner() {
   Serial.println();
-  Serial.println("=== Controller — stage 3a (indicators + battery) ===");
+  Serial.println("=== Controller — stage 3b (indicators, battery, arm interlock) ===");
   Serial.printf("X GPIO%u   Y GPIO%u   ARM GPIO%u   SPEED GPIO%u   "
                 "CAPTURE GPIO%u   STICK GPIO%u\n",
                 Pins::AXIS_X, Pins::AXIS_Y, Pins::ARM,

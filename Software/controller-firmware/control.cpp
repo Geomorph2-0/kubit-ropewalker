@@ -4,6 +4,7 @@
 #include "control.h"
 #include "buttons.h"
 #include "joystick.h"
+#include "battery.h"
 #include "config.h"
 
 namespace {
@@ -49,10 +50,26 @@ void update(uint32_t now) {
     Serial.println("[ARM] released early — no change");
   }
 
+  /* Disarming is tested first and is never gated on anything. Whatever else is
+   * wrong — flat cell, deflected stick — the operator must always be able to
+   * stop the robot. An interlock that can block a stop is a bug, not a safety
+   * feature.
+   *
+   * The battery floor is then checked before the stick, so a refusal names the
+   * condition the operator cannot fix by moving their thumb. Reporting "centre
+   * the stick" to someone whose real problem is a dead cell sends them chasing
+   * the wrong thing.
+   *
+   * Filtered volts(), not rawVolts(): a single noisy sample must not be able to
+   * veto arming, and the ~3 s EMA is far faster than a cell can actually move.
+   */
   if (Buttons::heldLong(Buttons::ARM)) {
     if (s_armed) {
       s_armed = false;
       Serial.println("[ARM] *** DISARMED ***");
+    } else if (Battery::volts() < Batt::V_ARM_MIN) {
+      Serial.printf("[ARM] refused — battery %.2f V, below %.2f V\n",
+                    Battery::volts(), Batt::V_ARM_MIN);
     } else if (!Joystick::centred()) {
       // Arming onto a deflected stick would command speed the instant the latch
       // closes. Release and hold again once it is centred.
