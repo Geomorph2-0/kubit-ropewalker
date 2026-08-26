@@ -150,10 +150,14 @@ upload.
 | Bluetooth | BLE 5 |
 | Bluetooth Classic | **Not supported** (S3 is BLE-only) |
 
-**Design note:** this board carries all WiFi duty — image upload, NTP time sync,
-and the HTTP retry queue. Ground control over Bluetooth deliberately lives on the
-*other* MCU (classic ESP32), so that the robot can still be armed and driven if
-this board or the venue WiFi fails.
+**Design note:** this board carries all *venue-WiFi* duty — image upload, NTP
+time sync, and the HTTP retry queue, all of which depend on the venue access
+point. Ground control deliberately lives on the *other* MCU pair (both classic
+ESP32s) over **ESP-NOW** instead: ESP-NOW is peer-to-peer on the 2.4 GHz radio
+and needs no access point, so the robot stays armable and drivable even if this
+board or the venue WiFi itself goes down. (Earlier drafts of this note said
+"Bluetooth" — the link technology is now settled as ESP-NOW; see
+[esp32_motion_board_log.md](esp32_motion_board_log.md#next-when-picked-up).)
 
 ---
 
