@@ -36,6 +36,8 @@ Motor driver is a TB6612FNG. Board specs and the bring-up logs live in
 
 ```
 docs/
+  controller_plan.md   controller design & staged build guide — power chain,
+                       pin map, LED and battery rules, stages 0-6
   competition/   both competition briefs + the SAR requirements extract
   hardware/      board spec sheets, bring-up logs, motor driver datasheet
   vendor/        Freenove SDK — gitignored, ~370 MB, redownloadable
@@ -55,6 +57,10 @@ tutorial numbering, so don't rename them.
 **Current stage: 3b (indicators, battery sensing, arm interlock).** Joystick,
 buttons, status LEDs and battery sensing all work; the arm latch now also
 refuses to close on a flat cell. Nothing transmits yet.
+
+The design rationale behind all of it — why the divider taps the cell and not the
+5 V rail, why each stage stops where it does, what each LED is allowed to mean —
+is in [docs/controller_plan.md](docs/controller_plan.md).
 
 Built for **Arduino IDE**. Open
 [Software/controller-firmware/controller-firmware.ino](Software/controller-firmware/controller-firmware.ino),

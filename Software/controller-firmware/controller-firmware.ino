@@ -40,8 +40,8 @@
  *   LED green     18      30       GPIO -> R -> anode, cathode -> GND
  *   LED yellow    19      31       "
  *   LED red       23      37       "
- *   Battery sense 35      6        cell+ -> 100k -> node -> 100k -> GND,
- *                                  node -> GPIO35, node -> 1uF -> GND
+ *   Battery sense 35      6        cell+ -> 10k -> node -> 10k -> GND,
+ *                                  node -> GPIO35, node -> 0.1uF ceramic -> GND
  *
  * Size the LED resistors from each LED's MEASURED forward voltage. A modern
  * InGaN green sits at 3.0-3.4 V and will barely light from a 3.3 V pin through

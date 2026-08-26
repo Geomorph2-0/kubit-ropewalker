@@ -114,18 +114,20 @@ namespace Batt {
   /* Falling thresholds are exact, so a warning appears the moment it is true.
    * Recovery needs HYSTERESIS of margin, or the LED strobes at a boundary.
    */
-  constexpr float V_GOOD     = 3.70f;   // above this: healthy
-  constexpr float V_LOW      = 3.50f;   // below this: critical
+  constexpr float V_GOOD     = 3.50f;   // above this: healthy
+  constexpr float V_LOW      = 3.30f;   // below this: critical
   constexpr float HYSTERESIS = 0.15f;
 
   /* The arming floor. Below this the latch refuses to close, so a cell that is
    * already too flat to finish a run cannot be the reason the robot stops
    * responding halfway along the rope.
    *
-   * It sits below V_LOW on purpose. CRITICAL is a warning about a cell that is
-   * nearly done but still perfectly able to drive; this is the hard refusal, and
-   * the gap between them is the window in which the red LED is telling you to
-   * land before the controller stops letting you take off.
+   * It now equals V_LOW rather than sitting below it, so solid red and "won't
+   * arm" land at the same instant — no advance-warning gap. That's a deliberate
+   * trade against the earlier wider band: solid red now means exactly "won't
+   * arm," full stop, instead of two subtly different shades of "critical." If
+   * a landing window before the hard refusal turns out to matter in practice,
+   * drop this back below V_LOW.
    *
    * No hysteresis, because none is needed: the test runs once, at the instant
    * ARM completes its hold, and never again. Nothing here can oscillate.
