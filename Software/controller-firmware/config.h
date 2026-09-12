@@ -60,7 +60,7 @@ namespace Stick {
    * Push right and up; flip the matching flag if a sign is backwards. Set by
    * experiment, not by reasoning.
    */
-  constexpr bool INVERT_X = false;
+  constexpr bool INVERT_X = true;    // flipped 30 Aug 2026 — right read negative on the bench
   constexpr bool INVERT_Y = false;
 
   constexpr float DEADZONE = 0.06f;       // fraction of full travel
@@ -90,6 +90,14 @@ namespace Timing {
    * constant, so sampling faster than this buys nothing.
    */
   constexpr uint32_t BATT_SAMPLE_MS   = 250;   // 4 Hz
+
+  /* Stage 4: ESP-NOW control link, controller -> robot. 50 Hz per
+   * controller_plan.md's stage 4 row. TIMEOUT is deliberately wider than a
+   * naive "3 missed sends" (60 ms) rule of thumb, because send-callback
+   * latency itself can add a few ms on top of the send period — see link.h.
+   */
+  constexpr uint32_t LINK_SEND_MS    = 20;    // 50 Hz
+  constexpr uint32_t LINK_TIMEOUT_MS = 150;   // ~7-8 missed sends before "down"
 }
 
 // ------------------------------------------------------------------ drive ---

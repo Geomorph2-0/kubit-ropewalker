@@ -55,8 +55,8 @@ micro-USB. The header layout is identical — only the socket differs.)*
 | 31 | **19** | SPI MISO | **LED YELLOW** |
 | 32 | — | **GND** | common ground |
 | 33 | 21 | I2C SDA | *reserved* — future OLED |
-| 34 | 3 | **RX0** | ⛔ keep free — serial monitor |
-| 35 | 1 | **TX0** | ⛔ keep free — serial monitor |
+| 34 | 3 | **RX0** | ⛔ keep free — serial monitor (see the temporary S3-debug-tap exception in `controller-firmware.ino`) |
+| 35 | 1 | **TX0** | ⛔ keep free — serial monitor (see the temporary S3-debug-tap exception in `controller-firmware.ino`) |
 | 36 | 22 | I2C SCL | *reserved* — future OLED |
 | 37 | **23** | SPI MOSI | **LED RED** |
 | 38 | — | **GND** | common ground |
@@ -78,7 +78,9 @@ never starts. It looks exactly like a dead board.
 **3. ADC2 dies when the radio starts.** ADC2 belongs to the WiFi driver, and
 `analogRead()` on an ADC2 pin fails **silently** once WiFi or ESP-NOW is up —
 garbage values, no error. Every analog input must be on **ADC1**, which on this
-module means GPIO **32, 33, 34, 35, 36, 39** only.
+module means GPIO **32, 33, 34, 35, 36, 39** only. See "ESP-NOW and ADC2" below
+for the complete list of which GPIOs that rules out, now that stage 4 actually
+turns the radio on.
 
 Digital use of ADC2 pins is completely fine, which is why ARM/SPEED/CAPTURE sit
 on GPIO 25/27/14.
@@ -114,3 +116,57 @@ with no clamp, so 5 V in means 5 V into a 3.3 V-only input.
 
 Robot-side assignments are not yet decided beyond the UART link to the S3 CAM
 board.
+
+---
+
+## ESP-NOW and ADC2 (applies once stage 4's radio is running)
+
+Stage 4 (`Software/controller-firmware/link.*`, `Software/shared/protocol.h`)
+calls `WiFi.mode(WIFI_STA)` and brings up ESP-NOW in `Link::begin()`, which
+means trap #3 above stops being theoretical the moment that runs. Every ADC2
+channel on this module goes bad for `analogRead()` from that point on, for
+the rest of the sketch's run — not flaky, not degraded, just silently wrong.
+This module bonds out all ten ADC2 channels; here's the complete list, so
+"avoid ADC2" has a concrete GPIO set behind it instead of a rule to remember:
+
+| ADC2 channel | GPIO | Header pin | Controller status |
+|---|---|---|---|
+| CH0 | 4 | 26 | free |
+| CH1 | 0 | 25 | avoid anyway — strapping/BOOT |
+| CH2 | 2 | 24 | onboard LED (not fitted) |
+| CH3 | 15 | 23 | avoid anyway — strapping |
+| CH4 | 13 | 15 | **STICK SW** — digital, unaffected |
+| CH5 | 12 | 13 | never use anyway — MTDI strapping |
+| CH6 | 14 | 12 | **CAPTURE** — digital, unaffected |
+| CH7 | 27 | 11 | **SPEED** — digital, unaffected |
+| CH8 | 25 | 9 | **ARM** — digital, unaffected |
+| CH9 | 26 | 10 | **free** — deliberately unassigned |
+
+**Controller: nothing currently breaks.** ARM/SPEED/CAPTURE/STICK were
+already read with `digitalRead()`, which trap #3 explicitly says stays fine
+on ADC2, and both real analog inputs (joystick X/Y) plus battery sense were
+already placed on ADC1. The only consequence is forward-looking: GPIO26 —
+the deliberately-free button 2 pin — can **never** be read with
+`analogRead()` once `Link::begin()` has run, only `digitalRead()`. If a
+future feature wants a second analog input (a pot, a second joystick axis),
+it has to land on a free ADC1 pin — GPIO34, 36 or 39 — not GPIO26.
+
+**Robot: this is the constraint the still-undecided pin map has to design
+around, not a warning to revisit later.** The robot will run this same
+`link.*` code path (receiving is planned for stage 4/5, and it needs its own
+WiFi STA + ESP-NOW init regardless), so the same ten GPIOs above are off
+limits for `analogRead()` there too. In practice:
+
+- **TB6612FNG driver pins** (`PWMA`/`AIN1`/`AIN2`/`PWMB`/`BIN1`/`BIN2`/`STBY`)
+  and **encoder pins** are all digital or PWM, so they're fine on ADC2 GPIOs
+  — same as the controller's buttons.
+- **If the robot gets its own battery divider** — section 4 of
+  `controller_plan.md` already flags the robot pack's threshold as "TBD when
+  its pack is chosen" — that divider **must** land on a free ADC1 pin
+  (GPIO34, 36 or 39; GPIO32/33/35 are taken on the controller but still free
+  on the robot until its own pin map is drawn up), never on an ADC2 GPIO,
+  for exactly the reason the controller's own battery sense is on GPIO35 and
+  not GPIO26.
+- Any other analog sensor considered for the robot (current sense, IR
+  reflectance, etc.) needs the same ADC1-only rule applied before its pin is
+  chosen, not after.

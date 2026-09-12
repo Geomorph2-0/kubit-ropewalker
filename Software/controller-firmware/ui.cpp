@@ -8,6 +8,7 @@
 #include "buttons.h"
 #include "control.h"
 #include "battery.h"
+#include "link.h"
 #include "leds.h"
 
 namespace {
@@ -56,13 +57,17 @@ void dispatch(const char *line) {
 /* Map system state onto the three LEDs.
  *
  * This is the only place that decides what a colour means. Leds animates; it
- * does not interpret. At stage 4 green moves to link state and at stage 5 yellow
- * moves to the robot's reported arm state — both are edits to this function
- * alone.
+ * does not interpret. At stage 5 yellow moves to the robot's reported arm
+ * state — an edit to this function alone.
  */
 void updateIndicators() {
-  // Green: heartbeat. Nothing real to show until the radio exists at stage 4.
-  Leds::set(Leds::GREEN, Leds::PULSE);
+  // Green: stage 4 — reflects whether ESP-NOW sends are actually landing
+  // (Link::up(), a 150 ms timeout on the send callback), not just that the
+  // radio is configured. Per controller_plan.md stage 4: "Green from
+  // send-callback status." Stage 5 will further split this into solid
+  // (telemetry flowing) vs blink (ACKs only, firmware wedged) — deliberately
+  // not attempted yet, since there is no telemetry to distinguish against.
+  Leds::set(Leds::GREEN, Link::up() ? Leds::PULSE : Leds::OFF);
 
   // Yellow: the local arm latch. Stage 5 re-points this at telemetry.
   Leds::set(Leds::YELLOW, Control::armed() ? Leds::ON : Leds::OFF);
@@ -82,7 +87,7 @@ namespace UI {
 
 void banner() {
   Serial.println();
-  Serial.println("=== Controller — stage 3b (indicators, battery, arm interlock) ===");
+  Serial.println("=== Controller — stage 4 (ESP-NOW link) ===");
   Serial.printf("X GPIO%u   Y GPIO%u   ARM GPIO%u   SPEED GPIO%u   "
                 "CAPTURE GPIO%u   STICK GPIO%u\n",
                 Pins::AXIS_X, Pins::AXIS_Y, Pins::ARM,
@@ -107,7 +112,9 @@ void banner() {
 void ready() {
   Serial.println();
   Serial.println("Ready. Starts DISARMED in PRECISION mode.");
-  Serial.println("TX columns are what will go in the ESP-NOW packet at stage 4.");
+  Serial.println("TX columns (and CAP/ZERO flags) are what's sent over ESP-NOW");
+  Serial.println("at 50 Hz. LINK shows whether the robot is acking — up/down,");
+  Serial.println("with sent/fail counts.");
   Serial.println("Keys (Serial Monitor line ending must be Newline):");
   Serial.println("  c        recalibrate joystick centre");
   Serial.println("  t        re-run the LED self test");
@@ -159,7 +166,8 @@ void update(uint32_t now) {
    */
   Serial.printf("X %+.2f (%4u)  Y %+.2f (%4u) | ARM %-8s %-9s | "
                 "TX %+5d %+5d | SW %s  CAP %-2lu ZERO %-2lu | "
-                "BAT %.2fV%s (raw %.2f) %-4s | G:%-5s Y:%-3s R:%-5s\n",
+                "BAT %.2fV%s (raw %.2f) %-4s | G:%-5s Y:%-3s R:%-5s | "
+                "LINK %-4s TX:%-6lu FAIL:%-4lu\n",
                 Joystick::x(), Joystick::rawX(),
                 Joystick::y(), Joystick::rawY(),
                 armField,
@@ -174,7 +182,10 @@ void update(uint32_t now) {
                 Battery::levelName(),
                 Leds::modeName(Leds::GREEN),
                 Leds::modeName(Leds::YELLOW),
-                Leds::modeName(Leds::RED));
+                Leds::modeName(Leds::RED),
+                Link::up() ? "up" : "down",
+                (unsigned long)Link::sentCount(),
+                (unsigned long)Link::failCount());
 }
 
 }  // namespace UI

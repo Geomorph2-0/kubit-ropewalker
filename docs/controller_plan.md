@@ -281,19 +281,29 @@ factor; 5% resistors shift the ratio more than the ADC does.
 Each stage is independently testable and leaves you with something that works.
 Don't start the next until the exit test passes.
 
-**Progress (22 Aug 2026)**
+**Progress (30 Aug 2026)**
 
 | Stage | State |
 |---|---|
 | 0 — power chain | **complete** — soldered to the board; boots on battery power, charges |
-| 1 — joystick | **complete** — axes crossed in software, `PIN_AXIS_X` = GPIO33 |
+| 1 — joystick | **complete** — axes crossed in software, `PIN_AXIS_X` = GPIO33; `INVERT_X` flipped 30 Aug after bench testing found X backwards |
 | 2 — buttons | **complete** — ARM needs a 2 s hold in both directions |
 | — modular refactor | **complete** — `Software/controller-firmware/`, 10 files |
-| 3a — LEDs + battery | **built, mid-test** — divider now reads correctly |
-| 3b — battery arm interlock | **implemented 22 Aug** — `V_ARM_MIN` 3.30 V, one branch in `control.cpp`; not yet flashed or bench-tested |
-| 4 — ESP-NOW one-way | not started |
+| 3a — LEDs + battery | **built, mid-test** — divider now reads correctly; bench test procedure written, not yet run |
+| 3b — battery arm interlock | **implemented 22 Aug** — `V_ARM_MIN` 3.30 V, one branch in `control.cpp`; bench test procedure written, not yet run |
+| 4 — ESP-NOW one-way | **bench-tested 12 Sep, passing** — `Software/shared/protocol.h` + `Software/controller-firmware/link.*` on the controller, `Software/tests/Arduino/robot-stage4-espnow-receiver/` as the robot-side exit-test sketch; green LED now reflects `Link::up()`. Flashed to both boards (controller `F4:2D:C9:71:7B:0C`, robot `F4:2D:C9:71:0A:7C`, identity confirmed via `esptool read-mac` before each flash); robot's serial showed a steady, CRC-valid packet stream (`rej=0`) with sequence numbers climbing cleanly. Required one fix first: `link.cpp`'s `onSent()` callback used the pre-3.1-core signature (`const uint8_t *mac`); Arduino-ESP32 core 3.3.x requires `const wifi_tx_info_t *`. `protocol.h` is still a literal copy in each sketch folder, not yet converted to the symlink the README's stage 4 note calls for. |
 | 5 — telemetry back | not started |
 | 6 — failsafe | not started |
+
+**Stage 3a/3b bench test procedure**, written 30 Aug, not yet executed:
+sweep the battery simulation (`v3.75` / `v3.40` / `v3.20`) and confirm the red
+LED walks off → blink → solid with correct hysteresis (recovery only above
+`V_LOW + HYSTERESIS` = 3.45 V and `V_GOOD + HYSTERESIS` = 3.65 V); verify the
+raw (not filtered) serial reading against a multimeter within 0.05 V; for 3b,
+confirm ARM refuses below 3.30 V with the right message, refuses off-centre
+with the right message, battery takes priority over stick when both are true,
+and — the one that matters most — disarm always succeeds regardless of
+battery or stick state.
 
 Stage 0 was deferred deliberately during stages 1–3: the battery chain added
 nothing to them and only added variables, so that bench work ran on **USB
@@ -340,6 +350,19 @@ at ~75 pA. Resolved.
 ## 6. Still open
 
 - Robot pack chemistry and cell count — sets the red LED thresholds.
-- Button 2 (GPIO26) unassigned.
+- Button 2 (GPIO26) unassigned. Note: once armed, this pin can never be an
+  analog input either — see the ESP-NOW/ADC2 note in
+  `esp32_devkit_38pin_pinout.md`.
 - Robot ↔ S3 CAM link is **UART** (decided); pins and framing not yet specified.
   The competition requires encoder distance and image to travel together.
+- `Software/shared/protocol.h` is duplicated by hand into
+  `controller-firmware/` and the robot's test sketch folder rather than
+  symlinked, per the README's stage 4 note — convert both to real symlinks
+  before editing the packet format again, or the two copies will drift.
+- ESP-NOW channel (`Protocol::CHANNEL = 1`) is an arbitrary first choice, not
+  a measured or previously-decided value — fine unless venue RF is congested,
+  in which case change it on both ends together.
+- Robot-side GPIO pin map for the TB6612FNG driver, encoders and any
+  endstops — not decided. Whatever it becomes must keep every analog line on
+  ADC1 (GPIO32/33/34/35/36/39), since the robot will run the same ESP-NOW
+  radio path as the controller.
