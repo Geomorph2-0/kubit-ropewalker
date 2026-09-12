@@ -29,7 +29,7 @@ datasheet claims.
 | Robot motion | ESP32-D0WD-V3 DevKit, 38-pin | `F4:2D:C9:71:0A:7C` | Drive, encoders |
 | Camera / upload | Freenove ESP32-S3-WROOM CAM, N16R8 | `D0:CF:13:00:2C:E0` | 16 MB flash, 8 MB PSRAM |
 
-Motor driver is a TB6612FNG. Board specs and the bring-up logs live in
+Motor driver is a DRV8833. Board specs and the bring-up logs live in
 [docs/hardware/](docs/hardware/).
 
 ## Layout

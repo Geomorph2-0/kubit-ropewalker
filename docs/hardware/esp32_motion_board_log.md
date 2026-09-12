@@ -106,5 +106,5 @@ talk to the ROM bootloader and need no compile step.
 - **Controller link: decided — ESP-NOW.** Peer MACs are the two classic
   ESP32s' WiFi STA addresses above. Doesn't touch the partition scheme the
   way the Bluetooth Classic stack would have.
-- **GPIO pin map** for the TB6612FNG driver, encoders and any endstops, avoiding
+- **GPIO pin map** for the DRV8833 driver, encoders and any endstops, avoiding
   the strapping and input-only pins — still not decided.

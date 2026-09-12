@@ -157,9 +157,9 @@ around, not a warning to revisit later.** The robot will run this same
 WiFi STA + ESP-NOW init regardless), so the same ten GPIOs above are off
 limits for `analogRead()` there too. In practice:
 
-- **TB6612FNG driver pins** (`PWMA`/`AIN1`/`AIN2`/`PWMB`/`BIN1`/`BIN2`/`STBY`)
-  and **encoder pins** are all digital or PWM, so they're fine on ADC2 GPIOs
-  — same as the controller's buttons.
+- **DRV8833 driver pins** (`AIN1`/`AIN2`/`BIN1`/`BIN2`/`nSLEEP`, plus `nFAULT`
+  if wired as a status input) and **encoder pins** are all digital or PWM, so
+  they're fine on ADC2 GPIOs — same as the controller's buttons.
 - **If the robot gets its own battery divider** — section 4 of
   `controller_plan.md` already flags the robot pack's threshold as "TBD when
   its pack is chosen" — that divider **must** land on a free ADC1 pin

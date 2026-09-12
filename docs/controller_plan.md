@@ -362,7 +362,7 @@ at ~75 pA. Resolved.
 - ESP-NOW channel (`Protocol::CHANNEL = 1`) is an arbitrary first choice, not
   a measured or previously-decided value — fine unless venue RF is congested,
   in which case change it on both ends together.
-- Robot-side GPIO pin map for the TB6612FNG driver, encoders and any
+- Robot-side GPIO pin map for the DRV8833 driver, encoders and any
   endstops — not decided. Whatever it becomes must keep every analog line on
   ADC1 (GPIO32/33/34/35/36/39), since the robot will run the same ESP-NOW
   radio path as the controller.
