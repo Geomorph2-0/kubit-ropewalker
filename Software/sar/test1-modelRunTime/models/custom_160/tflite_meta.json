@@ -1,0 +1,9 @@
+{
+  "backbone": "custom",
+  "size": "160",
+  "W": 160,
+  "H": 160,
+  "float_kb": 257.7,
+  "int8_kb": 74.96,
+  "int8_len": 76760
+}

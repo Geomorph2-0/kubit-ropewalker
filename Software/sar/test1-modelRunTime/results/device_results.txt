@@ -1,0 +1,3155 @@
+# On-device benchmark log — ESP-IDF (bench/) + Arduino sketch runs.
+#
+# Normally this file is appended to by:
+#   idf.py -p <PORT> flash monitor | tee -a ../results/device_results.txt
+# Each run is self-delimited by its "### <model> ..." header line; the single
+# "CSV,<stack>,..." line per run is the machine-readable record.
+# Extract the table with:  grep '^CSV,' results/device_results.txt
+#
+# The two blocks below were the first on-device runs; they were transcribed from
+# the terminal (the tee pipe was not used at the time), boot logs trimmed.
+
+# ---- custom_64  (ESP-IDF, run 1) — arena too small, superseded --------------
+# 60 KB arena ladder was too small for custom_64 (needs ~85 KB). Arena ladder
+# was then enlarged to a generous PSRAM-backed size. Kept for the record.
+### custom_64 64x64  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_64 64x64
+Arena: 60 KB
+Arena in PSRAM
+Failed to resize buffer. Requested: 81920, available 58600, missing: 23320
+AllocateTensors FAILED — model too large for arena (record as OOM)
+CSV,idf,custom_64,64,64,ALLOCATE_TENSORS_FAIL,PSRAM,0.00,0.00,0.00,0,0,O2,80,240,manual
+
+# ---- custom_64  (ESP-IDF, run 2) — OK, but max is WDT-tainted, superseded ---
+# Arena fixed. Ran fine, but CONFIG_FREERTOS_HZ=100 made the inter-invoke
+# vTaskDelay(pdMS_TO_TICKS(2)) round to 0, so IDLE0 starved and the task
+# watchdog fired mid-run. mean/min are valid; max (118.62) is inflated by the
+# WDT ISR + backtrace print. Fixed afterwards (vTaskDelay(1)); re-run supersedes
+# this block.
+### custom_64 64x64  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run2
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_64 64x64
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 64 64 3  dtype=9
+Arena used: 84884 bytes
+Fits internal SRAM (~320 KB): yes
+E (5753) task_wdt: Task watchdog got triggered. The following tasks/users did not reset the watchdog in time:
+E (5753) task_wdt:  - IDLE0 (CPU 0)
+E (5753) task_wdt: Tasks currently running:
+E (5753) task_wdt: CPU 0: bench
+E (5753) task_wdt: CPU 1: IDLE1
+E (5753) task_wdt: Print CPU 0 (current core) backtrace
+Backtrace: 0x42021BC1:0x3FC91CC0 0x403770A9:0x3FC91D00 0x400011F1:0x3FCEB110 0x4201AC76:0x3FCEB1E0 0x420137FE:0x3FCEB2C0 0x4201884E:0x3FCEB810 0x4200B83A:0x3FCEB840 0x42009FE6:0x3FCEB870
+Runs: 100  mean: 85.85 ms  min: 85.51 ms  max: 118.62 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=43
+CSV,idf,custom_64,64,64,OK,PSRAM,85.85,85.51,118.62,84884,43,O2,80,240,manual
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+Skipping linker script generation, section names unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting...
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+[1A[2K[1A[2KConnected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+[1A[2K[1A[2KStub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+[1A[2K'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+[1A[2K'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1908...
+
+[KWriting at 0x00010000 [                              ]   0.0% 0/1908 bytes... 
+[KWriting at 0x00011000 [==============================] 100.0% 1908/1908 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (1908 compressed) at 0x00010000 in 0.1 seconds (653.0 kbit/s).
+Reflashing 17 changed sectors at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00025fff...
+Compressed 69632 bytes to 43730...
+
+[KWriting at 0x00015000 [                              ]   0.0% 0/43730 bytes... 
+[KWriting at 0x0001d324 [==========>                   ]  37.5% 16384/43730 bytes... 
+[KWriting at 0x00021581 [=====================>        ]  74.9% 32768/43730 bytes... 
+[KWriting at 0x00026000 [==============================] 100.0% 43730/43730 bytes... 
+[1A[2K[1A[2KWrote 69632 bytes (43730 compressed) at 0x00015000 in 1.2 seconds (452.1 kbit/s).
+Reflashing 1 changed sector at 0x00028000...
+Flash will be erased from 0x00028000 to 0x00028fff...
+Compressed 4096 bytes to 1403...
+
+[KWriting at 0x00028000 [                              ]   0.0% 0/1403 bytes... 
+[KWriting at 0x00029000 [==============================] 100.0% 1403/1403 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (1403 compressed) at 0x00028000 in 0.1 seconds (450.5 kbit/s).
+Reflashing 1 changed sector at 0x0002a000...
+Flash will be erased from 0x0002a000 to 0x0002afff...
+Compressed 4096 bytes to 2388...
+
+[KWriting at 0x0002a000 [                              ]   0.0% 0/2388 bytes... 
+[KWriting at 0x0002b000 [==============================] 100.0% 2388/2388 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (2388 compressed) at 0x0002a000 in 0.1 seconds (283.5 kbit/s).
+Reflashing 2 changed sectors at 0x00030000...
+Flash will be erased from 0x00030000 to 0x00031fff...
+Compressed 8192 bytes to 5146...
+
+[KWriting at 0x00030000 [                              ]   0.0% 0/5146 bytes... 
+[KWriting at 0x00032000 [==============================] 100.0% 5146/5146 bytes... 
+[1A[2K[1A[2KWrote 8192 bytes (5146 compressed) at 0x00030000 in 0.1 seconds (514.3 kbit/s).
+Reflashing 2 changed sectors at 0x00039000...
+Flash will be erased from 0x00039000 to 0x0003afff...
+Compressed 8192 bytes to 6095...
+
+[KWriting at 0x00039000 [                              ]   0.0% 0/6095 bytes... 
+[KWriting at 0x0003b000 [==============================] 100.0% 6095/6095 bytes... 
+[1A[2K[1A[2KWrote 8192 bytes (6095 compressed) at 0x00039000 in 0.2 seconds (361.6 kbit/s).
+Reflashing 1 changed sector at 0x0005f000...
+Flash will be erased from 0x0005f000 to 0x0005ffff...
+Compressed 4096 bytes to 881...
+
+[KWriting at 0x0005f000 [                              ]   0.0% 0/881 bytes... 
+[KWriting at 0x00060000 [==============================] 100.0% 881/881 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (881 compressed) at 0x0005f000 in 0.0 seconds (735.0 kbit/s).
+Verifying written data...
+[1A[2KHash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=16884h ( 92292) map[0m
+[0;32mI (105) esp_image: segment 1: paddr=000268ac vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (108) esp_image: segment 2: paddr=00029e24 vaddr=40374000 size=061f4h ( 25076) load[0m
+[0;32mI (114) esp_image: segment 3: paddr=00030020 vaddr=42000020 size=28d04h (167172) map[0m
+[0;32mI (142) esp_image: segment 4: paddr=00058d2c vaddr=4037a1f4 size=0669ch ( 26268) load[0m
+[0;32mI (148) esp_image: segment 5: paddr=0005f3d0 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (154) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (154) boot: Disabling RNG early entropy source...[0m
+[0;32mI (168) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (168) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (168) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (170) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (174) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (179) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (183) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (188) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (192) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (197) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (202) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (206) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (211) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (214) esp_psram: Speed: 80MHz[0m
+[0;32mI (217) cpu_start: Multicore app[0m
+[0;32mI (633) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (641) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (642) cpu_start: Pro cpu start user code[0m
+[0;32mI (642) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (644) app_init: Application information:[0m
+[0;32mI (648) app_init: Project name:     bench[0m
+[0;32mI (651) app_init: App version:      1[0m
+[0;32mI (655) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (660) app_init: ELF file SHA256:  7568b67c2...[0m
+[0;32mI (664) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (668) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (671) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (675) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (679) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (686) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (691) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (696) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (701) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (707) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (713) spi_flash: detected chip: generic[0m
+[0;32mI (717) spi_flash: flash io: qio[0m
+[0;32mI (720) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (726) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (733) main_task: Started on CPU0[0m
+[0;32mI (753) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (753) main_task: Calling app_main()[0m
+
+### custom_64 64x64  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run3
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_64 64x64
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 64 64 3  dtype=9
+Arena used: 84884 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (863) main_task: Returned from app_main()[0m
+Runs: 100  mean: 84.03 ms  min: 84.03 ms  max: 84.03 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=43
+CSV,idf,custom_64,64,64,OK,PSRAM,84.03,84.03,84.03,84884,43,O2,80,240,manual_run3
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+[1A[2K[1A[2KConnected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+[1A[2K[1A[2KStub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+[1A[2K'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+[1A[2K'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1909...
+
+[KWriting at 0x00010000 [                              ]   0.0% 0/1909 bytes... 
+[KWriting at 0x00011000 [==============================] 100.0% 1909/1909 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (1909 compressed) at 0x00010000 in 0.0 seconds (662.2 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1899...
+
+[KWriting at 0x00015000 [                              ]   0.0% 0/1899 bytes... 
+[KWriting at 0x00016000 [==============================] 100.0% 1899/1899 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (1899 compressed) at 0x00015000 in 0.0 seconds (667.0 kbit/s).
+Reflashing 13 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00027fff...
+Compressed 53248 bytes to 37219...
+
+[KWriting at 0x0001b000 [                              ]   0.0% 0/37219 bytes... 
+[KWriting at 0x0001f7f0 [============>                 ]  44.0% 16384/37219 bytes... 
+[KWriting at 0x00024cd9 [=========================>    ]  88.0% 32768/37219 bytes... 
+[KWriting at 0x00028000 [==============================] 100.0% 37219/37219 bytes... 
+[1A[2K[1A[2KWrote 53248 bytes (37219 compressed) at 0x0001b000 in 1.2 seconds (369.5 kbit/s).
+Reflashing 1 changed sector at 0x0002a000...
+Flash will be erased from 0x0002a000 to 0x0002afff...
+Compressed 4096 bytes to 2385...
+
+[KWriting at 0x0002a000 [                              ]   0.0% 0/2385 bytes... 
+[KWriting at 0x0002b000 [==============================] 100.0% 2385/2385 bytes... 
+[1A[2K[1A[2KWrote 4096 bytes (2385 compressed) at 0x0002a000 in 0.1 seconds (469.4 kbit/s).
+Reflashing 6 changed sectors at 0x00030000...
+Flash will be erased from 0x00030000 to 0x00035fff...
+Compressed 24576 bytes to 17454...
+
+[KWriting at 0x00030000 [                              ]   0.0% 0/17454 bytes... 
+[KWriting at 0x00035970 [===========================>  ]  93.9% 16384/17454 bytes... 
+[KWriting at 0x00036000 [==============================] 100.0% 17454/17454 bytes... 
+[1A[2K[1A[2KWrote 24576 bytes (17454 compressed) at 0x00030000 in 0.5 seconds (374.4 kbit/s).
+Reflashing 41 changed sectors at 0x00037000...
+Flash will be erased from 0x00037000 to 0x0005ffff...
+Compressed 167936 bytes to 123750...
+
+[KWriting at 0x00037000 [                              ]   0.0% 0/123750 bytes... 
+[KWriting at 0x0003c43e [==>                           ]  13.2% 16384/123750 bytes... 
+[KWriting at 0x00041683 [======>                       ]  26.5% 32768/123750 bytes... 
+[KWriting at 0x000468ec [==========>                   ]  39.7% 49152/123750 bytes... 
+[KWriting at 0x0004bb34 [==============>               ]  53.0% 65536/123750 bytes... 
+[KWriting at 0x00050cb4 [==================>           ]  66.2% 81920/123750 bytes... 
+[KWriting at 0x0005634c [======================>       ]  79.4% 98304/123750 bytes... 
+[KWriting at 0x0005beeb [==========================>   ]  92.7% 114688/123750 bytes... 
+[KWriting at 0x00060000 [==============================] 100.0% 123750/123750 bytes... 
+[1A[2K[1A[2KWrote 167936 bytes (123750 compressed) at 0x00037000 in 3.7 seconds (365.0 kbit/s).
+Verifying written data...
+[1A[2KHash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=16884h ( 92292) map[0m
+[0;32mI (105) esp_image: segment 1: paddr=000268ac vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (108) esp_image: segment 2: paddr=00029e24 vaddr=40374000 size=061f4h ( 25076) load[0m
+[0;32mI (114) esp_image: segment 3: paddr=00030020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (142) esp_image: segment 4: paddr=00058d34 vaddr=4037a1f4 size=0669ch ( 26268) load[0m
+[0;32mI (148) esp_image: segment 5: paddr=0005f3d8 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (154) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (154) boot: Disabling RNG early entropy source...[0m
+[0;32mI (168) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (168) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (168) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (170) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (174) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (179) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (183) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (188) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (192) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (197) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (202) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (206) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (211) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (214) esp_psram: Speed: 80MHz[0m
+[0;32mI (217) cpu_start: Multicore app[0m
+[0;32mI (633) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (641) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (642) cpu_start: Pro cpu start user code[0m
+[0;32mI (642) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (644) app_init: Application information:[0m
+[0;32mI (648) app_init: Project name:     bench[0m
+[0;32mI (651) app_init: App version:      1[0m
+[0;32mI (655) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (660) app_init: ELF file SHA256:  2c889e45b...[0m
+[0;32mI (664) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (668) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (671) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (675) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (679) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (686) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (691) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (696) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (701) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (707) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (713) spi_flash: detected chip: generic[0m
+[0;32mI (717) spi_flash: flash io: qio[0m
+[0;32mI (720) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (726) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (733) main_task: Started on CPU0[0m
+[0;32mI (753) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (753) main_task: Calling app_main()[0m
+
+### custom_96 96x96  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_96 96x96
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 96 96 3  dtype=9
+Arena used: 187284 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (973) main_task: Returned from app_main()[0m
+Runs: 100  mean: 187.07 ms  min: 187.06 ms  max: 187.08 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=105
+CSV,idf,custom_96,96,96,OK,PSRAM,187.07,187.06,187.08,187284,105,O2,80,240,manual_run1
+Done
+[1/4] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+[2/4] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/4] No install step for 'bootloader'
+[4/4] Completed 'bootloader'
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting...
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x4f420 bytes. Smallest app partition is 0x177000 bytes. 0x127be0 bytes (79%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+No changed sectors found, verifying if data is in flash...
+'bench.bin' at 0x00010000 verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+Done
+Executing action: monitor
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=16884h ( 92292) map[0m
+[0;32mI (105) esp_image: segment 1: paddr=000268ac vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (108) esp_image: segment 2: paddr=00029e24 vaddr=40374000 size=061f4h ( 25076) load[0m
+[0;32mI (114) esp_image: segment 3: paddr=00030020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (142) esp_image: segment 4: paddr=00058d34 vaddr=4037a1f4 size=0669ch ( 26268) load[0m
+[0;32mI (148) esp_image: segment 5: paddr=0005f3d8 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (154) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (154) boot: Disabling RNG early entropy source...[0m
+[0;32mI (168) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (168) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (168) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (170) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (174) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (179) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (183) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (188) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (192) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (197) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (202) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (206) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (211) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (214) esp_psram: Speed: 80MHz[0m
+[0;32mI (217) cpu_start: Multicore app[0m
+[0;32mI (633) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (641) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (642) cpu_start: Pro cpu start user code[0m
+[0;32mI (642) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (644) app_init: Application information:[0m
+[0;32mI (648) app_init: Project name:     bench[0m
+[0;32mI (651) app_init: App version:      1[0m
+[0;32mI (655) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (660) app_init: ELF file SHA256:  c47c89262...[0m
+[0;32mI (664) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (668) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (671) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (675) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (679) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (686) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (691) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (696) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (701) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (707) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (713) spi_flash: detected chip: generic[0m
+[0;32mI (717) spi_flash: flash io: qio[0m
+[0;32mI (720) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (726) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (733) main_task: Started on CPU0[0m
+[0;32mI (753) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (753) main_task: Calling app_main()[0m
+
+### custom_96 96x96  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run2
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_96 96x96
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 96 96 3  dtype=9
+Arena used: 187284 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (973) main_task: Returned from app_main()[0m
+Runs: 100  mean: 187.07 ms  min: 187.06 ms  max: 187.08 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=105
+CSV,idf,custom_96,96,96,OK,PSRAM,187.07,187.06,187.08,187284,105,O2,80,240,manual_run2
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x58e70 bytes. Smallest app partition is 0x177000 bytes. 0x11e190 bytes (76%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x58e70 bytes. Smallest app partition is 0x177000 bytes. 0x11e190 bytes (76%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1909...
+
+Writing at 0x00010000 [                              ]   0.0% 0/1909 bytes... 
+
+Writing at 0x00011000 [==============================] 100.0% 1909/1909 bytes... 
+Wrote 4096 bytes (1909 compressed) at 0x00010000 in 0.0 seconds (685.6 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1900...
+
+Writing at 0x00015000 [                              ]   0.0% 0/1900 bytes... 
+
+Writing at 0x00016000 [==============================] 100.0% 1900/1900 bytes... 
+Wrote 4096 bytes (1900 compressed) at 0x00015000 in 0.0 seconds (710.6 kbit/s).
+Reflashing 78 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00068fff...
+Compressed 319488 bytes to 237091...
+
+Writing at 0x0001b000 [                              ]   0.0% 0/237091 bytes... 
+
+Writing at 0x0001f81b [=>                            ]   6.9% 16384/237091 bytes... 
+
+Writing at 0x00023a05 [===>                          ]  13.8% 32768/237091 bytes... 
+
+Writing at 0x00027b87 [=====>                        ]  20.7% 49152/237091 bytes... 
+
+Writing at 0x0002bc4f [=======>                      ]  27.6% 65536/237091 bytes... 
+
+Writing at 0x00035701 [=========>                    ]  34.6% 81920/237091 bytes... 
+
+Writing at 0x0003b7b6 [===========>                  ]  41.5% 98304/237091 bytes... 
+
+Writing at 0x000416d2 [=============>                ]  48.4% 114688/237091 bytes... 
+
+Writing at 0x0004700a [===============>              ]  55.3% 131072/237091 bytes... 
+
+Writing at 0x0004c4b0 [=================>            ]  62.2% 147456/237091 bytes... 
+
+Writing at 0x000516ef [===================>          ]  69.1% 163840/237091 bytes... 
+
+Writing at 0x0005698f [=====================>        ]  76.0% 180224/237091 bytes... 
+
+Writing at 0x0005bc65 [=======================>      ]  82.9% 196608/237091 bytes... 
+
+Writing at 0x00060d9e [=========================>    ]  89.8% 212992/237091 bytes... 
+
+Writing at 0x0006648f [============================> ]  96.7% 229376/237091 bytes... 
+
+Writing at 0x00069000 [==============================] 100.0% 237091/237091 bytes... 
+Wrote 319488 bytes (237091 compressed) at 0x0001b000 in 6.1 seconds (416.9 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ain()
+�ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=202d4h (131796) map[0m
+[0;32mI (111) esp_image: segment 1: paddr=000302fc vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (114) esp_image: segment 2: paddr=00033874 vaddr=40374000 size=0c7a4h ( 51108) load[0m
+[0;32mI (125) esp_image: segment 3: paddr=00040020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (152) esp_image: segment 4: paddr=00068d34 vaddr=403807a4 size=000ech (   236) load[0m
+[0;32mI (152) esp_image: segment 5: paddr=00068e28 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (161) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (161) boot: Disabling RNG early entropy source...[0m
+[0;32mI (177) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (177) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (177) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (179) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (183) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (188) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (192) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (197) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (202) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (206) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (211) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (216) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (220) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (223) esp_psram: Speed: 80MHz[0m
+[0;32mI (226) cpu_start: Multicore app[0m
+[0;32mI (642) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (651) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (651) cpu_start: Pro cpu start user code[0m
+[0;32mI (651) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (653) app_init: Application information:[0m
+[0;32mI (657) app_init: Project name:     bench[0m
+[0;32mI (660) app_init: App version:      1[0m
+[0;32mI (664) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (669) app_init: ELF file SHA256:  d8b5c9b4d...[0m
+[0;32mI (673) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (677) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (681) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (685) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (689) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (695) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (700) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (705) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (710) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (716) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (723) spi_flash: detected chip: generic[0m
+[0;32mI (726) spi_flash: flash io: qio[0m
+[0;32mI (729) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (735) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (742) main_task: Started on CPU0[0m
+[0;32mI (762) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (762) main_task: Calling app_main()[0m
+
+### custom_128 128x128  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_128 128x128
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 128 128 3  dtype=9
+Arena used: 331444 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (1242) main_task: Returned from app_main()[0m
+Runs: 100  mean: 446.54 ms  min: 446.53 ms  max: 446.55 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=53
+CSV,idf,custom_128,128,128,OK,PSRAM,446.54,446.53,446.55,331444,53,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x58e90 bytes. Smallest app partition is 0x177000 bytes. 0x11e170 bytes (76%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x58e90 bytes. Smallest app partition is 0x177000 bytes. 0x11e170 bytes (76%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1911...
+
+Writing at 0x00010000 [                              ]   0.0% 0/1911 bytes... 
+
+Writing at 0x00011000 [==============================] 100.0% 1911/1911 bytes... 
+Wrote 4096 bytes (1911 compressed) at 0x00010000 in 0.0 seconds (686.4 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1900...
+
+Writing at 0x00015000 [                              ]   0.0% 0/1900 bytes... 
+
+Writing at 0x00016000 [==============================] 100.0% 1900/1900 bytes... 
+Wrote 4096 bytes (1900 compressed) at 0x00015000 in 0.0 seconds (713.8 kbit/s).
+Reflashing 39 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00041fff...
+Compressed 159744 bytes to 117004...
+
+Writing at 0x0001b000 [                              ]   0.0% 0/117004 bytes... 
+
+Writing at 0x0001f7a2 [===>                          ]  14.0% 16384/117004 bytes... 
+
+Writing at 0x0002386f [=======>                      ]  28.0% 32768/117004 bytes... 
+
+Writing at 0x00027939 [===========>                  ]  42.0% 49152/117004 bytes... 
+
+Writing at 0x0002b9da [===============>              ]  56.0% 65536/117004 bytes... 
+
+Writing at 0x0003535a [====================>         ]  70.0% 81920/117004 bytes... 
+
+Writing at 0x0003b3c3 [========================>     ]  84.0% 98304/117004 bytes... 
+
+Writing at 0x0004125b [============================> ]  98.0% 114688/117004 bytes... 
+
+Writing at 0x00042000 [==============================] 100.0% 117004/117004 bytes... 
+Wrote 159744 bytes (117004 compressed) at 0x0001b000 in 2.9 seconds (443.4 kbit/s).
+Reflashing 2 changed sectors at 0x00049000...
+Flash will be erased from 0x00049000 to 0x0004afff...
+Compressed 8192 bytes to 6092...
+
+Writing at 0x00049000 [                              ]   0.0% 0/6092 bytes... 
+
+Writing at 0x0004b000 [==============================] 100.0% 6092/6092 bytes... 
+Wrote 8192 bytes (6092 compressed) at 0x00049000 in 0.2 seconds (396.3 kbit/s).
+Reflashing 1 changed sector at 0x00068000...
+Flash will be erased from 0x00068000 to 0x00068fff...
+Compressed 4096 bytes to 3007...
+
+Writing at 0x00068000 [                              ]   0.0% 0/3007 bytes... 
+
+Writing at 0x00069000 [==============================] 100.0% 3007/3007 bytes... 
+Wrote 4096 bytes (3007 compressed) at 0x00068000 in 0.1 seconds (331.4 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x8 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=202f4h (131828) map[0m
+[0;32mI (111) esp_image: segment 1: paddr=0003031c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (114) esp_image: segment 2: paddr=00033894 vaddr=40374000 size=0c784h ( 51076) load[0m
+[0;32mI (125) esp_image: segment 3: paddr=00040020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (152) esp_image: segment 4: paddr=00068d34 vaddr=40380784 size=0010ch (   268) load[0m
+[0;32mI (152) esp_image: segment 5: paddr=00068e48 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (161) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (161) boot: Disabling RNG early entropy source...[0m
+[0;32mI (177) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (177) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (177) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (179) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (183) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (188) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (192) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (197) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (202) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (206) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (211) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (216) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (220) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (223) esp_psram: Speed: 80MHz[0m
+[0;32mI (226) cpu_start: Multicore app[0m
+[0;32mI (642) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (651) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (651) cpu_start: Pro cpu start user code[0m
+[0;32mI (651) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (653) app_init: Application information:[0m
+[0;32mI (657) app_init: Project name:     bench[0m
+[0;32mI (660) app_init: App version:      1[0m
+[0;32mI (664) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (669) app_init: ELF file SHA256:  abcf848bf...[0m
+[0;32mI (673) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (677) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (681) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (685) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (688) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (695) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (700) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (705) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (710) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (716) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (723) spi_flash: detected chip: generic[0m
+[0;32mI (726) spi_flash: flash io: qio[0m
+[0;32mI (729) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (735) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (742) main_task: Started on CPU0[0m
+[0;32mI (762) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (762) main_task: Calling app_main()[0m
+
+### custom_160 160x160  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_160 160x160
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 160 160 3  dtype=9
+Arena used: 515764 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (1492) main_task: Returned from app_main()[0m
+Runs: 100  mean: 695.18 ms  min: 695.17 ms  max: 695.18 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=37
+CSV,idf,custom_160,160,160,OK,PSRAM,695.18,695.17,695.18,515764,37,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x67c40 bytes. Smallest app partition is 0x177000 bytes. 0x10f3c0 bytes (72%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x67c40 bytes. Smallest app partition is 0x177000 bytes. 0x10f3c0 bytes (72%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1902...
+
+Writing at 0x00010000 [                              ]   0.0% 0/1902 bytes... 
+
+Writing at 0x00011000 [==============================] 100.0% 1902/1902 bytes... 
+Wrote 4096 bytes (1902 compressed) at 0x00010000 in 0.1 seconds (572.7 kbit/s).
+Reflashing 49 changed sectors at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00045fff...
+Compressed 200704 bytes to 157065...
+
+Writing at 0x00015000 [                              ]   0.0% 0/157065 bytes... 
+
+Writing at 0x0001d30b [==>                           ]  10.4% 16384/157065 bytes... 
+
+Writing at 0x0002142a [=====>                        ]  20.9% 32768/157065 bytes... 
+
+Writing at 0x0002580e [========>                     ]  31.3% 49152/157065 bytes... 
+
+Writing at 0x00029a59 [===========>                  ]  41.7% 65536/157065 bytes... 
+
+Writing at 0x0002dca9 [==============>               ]  52.2% 81920/157065 bytes... 
+
+Writing at 0x00031ee5 [=================>            ]  62.6% 98304/157065 bytes... 
+
+Writing at 0x000360a2 [====================>         ]  73.0% 114688/157065 bytes... 
+
+Writing at 0x0003a2a4 [========================>     ]  83.5% 131072/157065 bytes... 
+
+Writing at 0x00042cca [===========================>  ]  93.9% 147456/157065 bytes... 
+
+Writing at 0x00046000 [==============================] 100.0% 157065/157065 bytes... 
+Wrote 200704 bytes (157065 compressed) at 0x00015000 in 4.0 seconds (405.5 kbit/s).
+Reflashing 49 changed sectors at 0x00047000...
+Flash will be erased from 0x00047000 to 0x00077fff...
+Compressed 200704 bytes to 143306...
+
+Writing at 0x00047000 [                              ]   0.0% 0/143306 bytes... 
+
+Writing at 0x0004c451 [==>                           ]  11.4% 16384/143306 bytes... 
+
+Writing at 0x00051691 [=====>                        ]  22.9% 32768/143306 bytes... 
+
+Writing at 0x000568f2 [=========>                    ]  34.3% 49152/143306 bytes... 
+
+Writing at 0x0005bb38 [============>                 ]  45.7% 65536/143306 bytes... 
+
+Writing at 0x00060caa [================>             ]  57.2% 81920/143306 bytes... 
+
+Writing at 0x00066323 [===================>          ]  68.6% 98304/143306 bytes... 
+
+Writing at 0x0006d3cc [=======================>      ]  80.0% 114688/143306 bytes... 
+
+Writing at 0x000735cb [==========================>   ]  91.5% 131072/143306 bytes... 
+
+Writing at 0x00078000 [==============================] 100.0% 143306/143306 bytes... 
+Wrote 200704 bytes (143306 compressed) at 0x00047000 in 3.7 seconds (438.2 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x2b (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=2f094h (192660) map[0m
+[0;32mI (121) esp_image: segment 1: paddr=0003f0bc vaddr=3fc90900 size=00f5ch (  3932) load[0m
+[0;32mI (122) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=28d10h (167184) map[0m
+[0;32mI (150) esp_image: segment 3: paddr=00068d38 vaddr=3fc9185c size=02614h (  9748) load[0m
+[0;32mI (153) esp_image: segment 4: paddr=0006b354 vaddr=40374000 size=0c890h ( 51344) load[0m
+[0;32mI (165) esp_image: segment 5: paddr=00077bec vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (170) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (171) boot: Disabling RNG early entropy source...[0m
+[0;32mI (183) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (183) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (183) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (186) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (190) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (194) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (198) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (203) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (208) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (213) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (218) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (222) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (227) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (230) esp_psram: Speed: 80MHz[0m
+[0;32mI (233) cpu_start: Multicore app[0m
+[0;32mI (649) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (657) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (657) cpu_start: Pro cpu start user code[0m
+[0;32mI (657) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (659) app_init: Application information:[0m
+[0;32mI (663) app_init: Project name:     bench[0m
+[0;32mI (667) app_init: App version:      1[0m
+[0;32mI (670) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (675) app_init: ELF file SHA256:  652fd452c...[0m
+[0;32mI (680) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (683) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (687) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (691) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (695) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (701) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (706) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (711) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (717) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (722) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (729) spi_flash: detected chip: generic[0m
+[0;32mI (732) spi_flash: flash io: qio[0m
+[0;32mI (735) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (741) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (748) main_task: Started on CPU0[0m
+[0;32mI (768) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (768) main_task: Calling app_main()[0m
+
+### custom_320x240 320x240  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_320x240 320x240
+Arena cap: 4096 KB
+Arena in PSRAM
+Input shape: 1 240 320 3  dtype=9
+Arena used: 1540820 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (3168) main_task: Returned from app_main()[0m
+Runs: 100  mean: 2362.65 ms  min: 2362.64 ms  max: 2362.66 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=38
+CSV,idf,custom_320x240,320,240,OK,PSRAM,2362.65,2362.64,2362.66,1540820,38,O2,80,240,manual_run1
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x67c30 bytes. Smallest app partition is 0x177000 bytes. 0x10f3d0 bytes (72%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0x67c30 bytes. Smallest app partition is 0x177000 bytes. 0x10f3d0 bytes (72%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1909...
+
+Writing at 0x00010000 [                              ]   0.0% 0/1909 bytes... 
+
+Writing at 0x00011000 [==============================] 100.0% 1909/1909 bytes... 
+Wrote 4096 bytes (1909 compressed) at 0x00010000 in 0.0 seconds (673.9 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1902...
+
+Writing at 0x00015000 [                              ]   0.0% 0/1902 bytes... 
+
+Writing at 0x00016000 [==============================] 100.0% 1902/1902 bytes... 
+Wrote 4096 bytes (1902 compressed) at 0x00015000 in 0.0 seconds (687.1 kbit/s).
+Reflashing 43 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00045fff...
+Compressed 176128 bytes to 145796...
+
+Writing at 0x0001b000 [                              ]   0.0% 0/145796 bytes... 
+
+Writing at 0x0001f88c [==>                           ]  11.2% 16384/145796 bytes... 
+
+Writing at 0x00023bce [=====>                        ]  22.5% 32768/145796 bytes... 
+
+Writing at 0x00028157 [=========>                    ]  33.7% 49152/145796 bytes... 
+
+Writing at 0x0002c585 [============>                 ]  45.0% 65536/145796 bytes... 
+
+Writing at 0x00030742 [===============>              ]  56.2% 81920/145796 bytes... 
+
+Writing at 0x00034abe [===================>          ]  67.4% 98304/145796 bytes... 
+
+Writing at 0x00038d64 [======================>       ]  78.7% 114688/145796 bytes... 
+
+Writing at 0x00041024 [=========================>    ]  89.9% 131072/145796 bytes... 
+
+Writing at 0x00046000 [==============================] 100.0% 145796/145796 bytes... 
+Wrote 176128 bytes (145796 compressed) at 0x0001b000 in 3.6 seconds (389.4 kbit/s).
+Reflashing 49 changed sectors at 0x00047000...
+Flash will be erased from 0x00047000 to 0x00077fff...
+Compressed 200704 bytes to 143305...
+
+Writing at 0x00047000 [                              ]   0.0% 0/143305 bytes... 
+
+Writing at 0x0004c444 [==>                           ]  11.4% 16384/143305 bytes... 
+
+Writing at 0x0005168b [=====>                        ]  22.9% 32768/143305 bytes... 
+
+Writing at 0x000568f1 [=========>                    ]  34.3% 49152/143305 bytes... 
+
+Writing at 0x0005bb39 [============>                 ]  45.7% 65536/143305 bytes... 
+
+Writing at 0x00060cbf [================>             ]  57.2% 81920/143305 bytes... 
+
+Writing at 0x00066323 [===================>          ]  68.6% 98304/143305 bytes... 
+
+Writing at 0x0006d3c9 [=======================>      ]  80.0% 114688/143305 bytes... 
+
+Writing at 0x000735b1 [==========================>   ]  91.5% 131072/143305 bytes... 
+
+Writing at 0x00078000 [==============================] 100.0% 143305/143305 bytes... 
+Wrote 200704 bytes (143305 compressed) at 0x00047000 in 3.8 seconds (419.3 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=2f094h (192660) map[0m
+[0;32mI (121) esp_image: segment 1: paddr=0003f0bc vaddr=3fc90900 size=00f5ch (  3932) load[0m
+[0;32mI (122) esp_image: segment 2: paddr=00040020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (150) esp_image: segment 3: paddr=00068d34 vaddr=3fc9185c size=02614h (  9748) load[0m
+[0;32mI (153) esp_image: segment 4: paddr=0006b350 vaddr=40374000 size=0c890h ( 51344) load[0m
+[0;32mI (165) esp_image: segment 5: paddr=00077be8 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (170) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (171) boot: Disabling RNG early entropy source...[0m
+[0;32mI (183) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (183) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (183) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (186) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (190) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (194) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (198) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (203) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (208) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (213) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (218) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (222) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (227) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (230) esp_psram: Speed: 80MHz[0m
+[0;32mI (233) cpu_start: Multicore app[0m
+[0;32mI (649) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (657) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (657) cpu_start: Pro cpu start user code[0m
+[0;32mI (657) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (659) app_init: Application information:[0m
+[0;32mI (663) app_init: Project name:     bench[0m
+[0;32mI (667) app_init: App version:      1[0m
+[0;32mI (670) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (675) app_init: ELF file SHA256:  db076bc90...[0m
+[0;32mI (680) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (683) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (687) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (691) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (695) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (701) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (706) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (711) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (717) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (722) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (729) spi_flash: detected chip: generic[0m
+[0;32mI (732) spi_flash: flash io: qio[0m
+[0;32mI (735) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (741) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (748) main_task: Started on CPU0[0m
+[0;32mI (768) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (768) main_task: Calling app_main()[0m
+
+### custom_480x320 480x320  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_480x320 480x320
+Arena cap: 6144 KB
+Arena in PSRAM
+Input shape: 1 320 480 3  dtype=9
+Arena used: 3076820 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (5538) main_task: Returned from app_main()[0m
+Runs: 100  mean: 4725.79 ms  min: 4725.77 ms  max: 4725.80 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-36
+CSV,idf,custom_480x320,480,320,OK,PSRAM,4725.79,4725.77,4725.80,3076820,-36,O2,80,240,manual_run1
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+Skipping linker script generation, section names unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1904...
+Writing at 0x00010000 [                              ]   0.0% 0/1904 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1904/1904 bytes... 
+Wrote 4096 bytes (1904 compressed) at 0x00010000 in 0.0 seconds (686.9 kbit/s).
+Reflashing 218 changed sectors at 0x00015000...
+Flash will be erased from 0x00015000 to 0x000eefff...
+Compressed 892928 bytes to 622175...
+Writing at 0x00015000 [                              ]   0.0% 0/622175 bytes... 
+Writing at 0x0001d77c [                              ]   2.6% 16384/622175 bytes... 
+Writing at 0x00021c9b [>                             ]   5.3% 32768/622175 bytes... 
+Writing at 0x00026307 [=>                            ]   7.9% 49152/622175 bytes... 
+Writing at 0x0002a995 [==>                           ]  10.5% 65536/622175 bytes... 
+Writing at 0x0002ee61 [==>                           ]  13.2% 81920/622175 bytes... 
+Writing at 0x00033337 [===>                          ]  15.8% 98304/622175 bytes... 
+Writing at 0x00037818 [====>                         ]  18.4% 114688/622175 bytes... 
+Writing at 0x0003bbdf [=====>                        ]  21.1% 131072/622175 bytes... 
+Writing at 0x00040202 [======>                       ]  23.7% 147456/622175 bytes... 
+Writing at 0x00044672 [======>                       ]  26.3% 163840/622175 bytes... 
+Writing at 0x00048b86 [=======>                      ]  29.0% 180224/622175 bytes... 
+Writing at 0x0004d1b2 [========>                     ]  31.6% 196608/622175 bytes... 
+Writing at 0x00051588 [=========>                    ]  34.2% 212992/622175 bytes... 
+Writing at 0x00055a8c [==========>                   ]  36.9% 229376/622175 bytes... 
+Writing at 0x0005a046 [==========>                   ]  39.5% 245760/622175 bytes... 
+Writing at 0x0005e4d7 [===========>                  ]  42.1% 262144/622175 bytes... 
+Writing at 0x000628a8 [============>                 ]  44.8% 278528/622175 bytes... 
+Writing at 0x00066cee [=============>                ]  47.4% 294912/622175 bytes... 
+Writing at 0x0006b131 [==============>               ]  50.0% 311296/622175 bytes... 
+Writing at 0x0006f562 [==============>               ]  52.7% 327680/622175 bytes... 
+Writing at 0x00073974 [===============>              ]  55.3% 344064/622175 bytes... 
+Writing at 0x00077d7d [================>             ]  57.9% 360448/622175 bytes... 
+Writing at 0x0007c1bf [=================>            ]  60.6% 376832/622175 bytes... 
+Writing at 0x00080a9b [=================>            ]  63.2% 393216/622175 bytes... 
+Writing at 0x00090d14 [==================>           ]  65.8% 409600/622175 bytes... 
+Writing at 0x0009dc74 [===================>          ]  68.5% 425984/622175 bytes... 
+Writing at 0x000aa902 [====================>         ]  71.1% 442368/622175 bytes... 
+Writing at 0x000b6582 [=====================>        ]  73.7% 458752/622175 bytes... 
+Writing at 0x000bdd58 [=====================>        ]  76.4% 475136/622175 bytes... 
+Writing at 0x000c3b66 [======================>       ]  79.0% 491520/622175 bytes... 
+Writing at 0x000c93d3 [=======================>      ]  81.6% 507904/622175 bytes... 
+Writing at 0x000ce661 [========================>     ]  84.3% 524288/622175 bytes... 
+Writing at 0x000d3c2f [=========================>    ]  86.9% 540672/622175 bytes... 
+Writing at 0x000d8e0c [=========================>    ]  89.5% 557056/622175 bytes... 
+Writing at 0x000dde7b [==========================>   ]  92.2% 573440/622175 bytes... 
+Writing at 0x000e31f3 [===========================>  ]  94.8% 589824/622175 bytes... 
+Writing at 0x000e8b41 [============================> ]  97.4% 606208/622175 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 622175/622175 bytes... 
+Wrote 892928 bytes (622175 compressed) at 0x00015000 in 15.1 seconds (471.9 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+enc�ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a5b04h (678660) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b5b2c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (199) esp_image: segment 2: paddr=000b90a4 vaddr=40374000 size=06f74h ( 28532) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d34 vaddr=4037af74 size=0591ch ( 22812) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee658 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (244) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (259) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (261) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (288) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (732) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  6842a358d...[0m
+[0;32mI (755) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (817) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_480x320 480x320  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_480x320 480x320
+Arena cap: 6144 KB
+Arena in PSRAM
+Input shape: 1 320 480 3  dtype=9
+Arena used: 2405892 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (3563) main_task: Returned from app_main()[0m
+Runs: 100  mean: 2644.72 ms  min: 2644.70 ms  max: 2644.75 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-111
+CSV,idf,mobilenetv3_480x320,480,320,OK,PSRAM,2644.72,2644.70,2644.75,2405892,-111,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6f0 bytes. Smallest app partition is 0x177000 bytes. 0x98910 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6f0 bytes. Smallest app partition is 0x177000 bytes. 0x98910 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1911...
+Writing at 0x00010000 [                              ]   0.0% 0/1911 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1911/1911 bytes... 
+Wrote 4096 bytes (1911 compressed) at 0x00010000 in 0.0 seconds (691.5 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1904...
+Writing at 0x00015000 [                              ]   0.0% 0/1904 bytes... 
+Writing at 0x00016000 [==============================] 100.0% 1904/1904 bytes... 
+Wrote 4096 bytes (1904 compressed) at 0x00015000 in 0.0 seconds (703.1 kbit/s).
+Reflashing 6 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00020fff...
+Compressed 24576 bytes to 20345...
+Writing at 0x0001b000 [                              ]   0.0% 0/20345 bytes... 
+Writing at 0x0001ff54 [=======================>      ]  80.5% 16384/20345 bytes... 
+Writing at 0x00021000 [==============================] 100.0% 20345/20345 bytes... 
+Wrote 24576 bytes (20345 compressed) at 0x0001b000 in 0.5 seconds (406.6 kbit/s).
+Reflashing 1 changed sector at 0x00022000...
+Flash will be erased from 0x00022000 to 0x00022fff...
+Compressed 4096 bytes to 3685...
+Writing at 0x00022000 [                              ]   0.0% 0/3685 bytes... 
+Writing at 0x00023000 [==============================] 100.0% 3685/3685 bytes... 
+Wrote 4096 bytes (3685 compressed) at 0x00022000 in 0.1 seconds (367.0 kbit/s).
+Reflashing 1 changed sector at 0x00024000...
+Flash will be erased from 0x00024000 to 0x00024fff...
+Compressed 4096 bytes to 3845...
+Writing at 0x00024000 [                              ]   0.0% 0/3845 bytes... 
+Writing at 0x00025000 [==============================] 100.0% 3845/3845 bytes... 
+Wrote 4096 bytes (3845 compressed) at 0x00024000 in 0.1 seconds (343.4 kbit/s).
+Reflashing 135 changed sectors at 0x00026000...
+Flash will be erased from 0x00026000 to 0x000acfff...
+Compressed 552960 bytes to 396491...
+Writing at 0x00026000 [                              ]   0.0% 0/396491 bytes... 
+Writing at 0x0002a62f [>                             ]   4.1% 16384/396491 bytes... 
+Writing at 0x0002eb0e [=>                            ]   8.3% 32768/396491 bytes... 
+Writing at 0x00033011 [==>                           ]  12.4% 49152/396491 bytes... 
+Writing at 0x000374dc [===>                          ]  16.5% 65536/396491 bytes... 
+Writing at 0x0003b88a [=====>                        ]  20.7% 81920/396491 bytes... 
+Writing at 0x0003fe9d [======>                       ]  24.8% 98304/396491 bytes... 
+Writing at 0x000443b8 [=======>                      ]  28.9% 114688/396491 bytes... 
+Writing at 0x00048851 [========>                     ]  33.1% 131072/396491 bytes... 
+Writing at 0x0004ce1e [==========>                   ]  37.2% 147456/396491 bytes... 
+Writing at 0x000511ac [===========>                  ]  41.3% 163840/396491 bytes... 
+Writing at 0x00055727 [============>                 ]  45.5% 180224/396491 bytes... 
+Writing at 0x00059cef [=============>                ]  49.6% 196608/396491 bytes... 
+Writing at 0x0005e199 [===============>              ]  53.7% 212992/396491 bytes... 
+Writing at 0x00062575 [================>             ]  57.9% 229376/396491 bytes... 
+Writing at 0x000669be [=================>            ]  62.0% 245760/396491 bytes... 
+Writing at 0x0006ae0f [==================>           ]  66.1% 262144/396491 bytes... 
+Writing at 0x0006f24f [====================>         ]  70.2% 278528/396491 bytes... 
+Writing at 0x00073657 [=====================>        ]  74.4% 294912/396491 bytes... 
+Writing at 0x00077a70 [======================>       ]  78.5% 311296/396491 bytes... 
+Writing at 0x0007bea5 [=======================>      ]  82.6% 327680/396491 bytes... 
+Writing at 0x00080775 [=========================>    ]  86.8% 344064/396491 bytes... 
+Writing at 0x00090542 [==========================>   ]  90.9% 360448/396491 bytes... 
+Writing at 0x0009d306 [===========================>  ]  95.0% 376832/396491 bytes... 
+Writing at 0x000aa5e1 [============================> ]  99.2% 393216/396491 bytes... 
+Writing at 0x000ad000 [==============================] 100.0% 396491/396491 bytes... 
+Wrote 552960 bytes (396491 compressed) at 0x00026000 in 9.7 seconds (457.9 kbit/s).
+Reflashing 3 changed sectors at 0x000ae000...
+Flash will be erased from 0x000ae000 to 0x000b0fff...
+Compressed 12288 bytes to 4510...
+Writing at 0x000ae000 [                              ]   0.0% 0/4510 bytes... 
+Writing at 0x000b1000 [==============================] 100.0% 4510/4510 bytes... 
+Wrote 12288 bytes (4510 compressed) at 0x000ae000 in 0.1 seconds (901.9 kbit/s).
+Reflashing 20 changed sectors at 0x000b2000...
+Flash will be erased from 0x000b2000 to 0x000c5fff...
+Compressed 81920 bytes to 48609...
+Writing at 0x000b2000 [                              ]   0.0% 0/48609 bytes... 
+Writing at 0x000ba8c5 [=========>                    ]  33.7% 16384/48609 bytes... 
+Writing at 0x000c0865 [===================>          ]  67.4% 32768/48609 bytes... 
+Writing at 0x000c6000 [==============================] 100.0% 48609/48609 bytes... 
+Wrote 81920 bytes (48609 compressed) at 0x000b2000 in 1.2 seconds (558.3 kbit/s).
+Reflashing 40 changed sectors at 0x000c7000...
+Flash will be erased from 0x000c7000 to 0x000eefff...
+Compressed 163840 bytes to 121496...
+Writing at 0x000c7000 [                              ]   0.0% 0/121496 bytes... 
+Writing at 0x000cc451 [===>                          ]  13.5% 16384/121496 bytes... 
+Writing at 0x000d1691 [=======>                      ]  27.0% 32768/121496 bytes... 
+Writing at 0x000d68f2 [===========>                  ]  40.5% 49152/121496 bytes... 
+Writing at 0x000dbb38 [===============>              ]  53.9% 65536/121496 bytes... 
+Writing at 0x000e0caa [===================>          ]  67.4% 81920/121496 bytes... 
+Writing at 0x000e6354 [=======================>      ]  80.9% 98304/121496 bytes... 
+Writing at 0x000ebc16 [===========================>  ]  94.4% 114688/121496 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 121496/121496 bytes... 
+Wrote 163840 bytes (121496 compressed) at 0x000c7000 in 3.2 seconds (413.6 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a5b44h (678724) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b5b6c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (199) esp_image: segment 2: paddr=000b90e4 vaddr=40374000 size=06f34h ( 28468) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d10h (167184) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d38 vaddr=4037af34 size=0595ch ( 22876) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee69c vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (244) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (259) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (261) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (288) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (733) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  88e629adb...[0m
+[0;32mI (755) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (817) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_320x240 320x240  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_320x240 320x240
+Arena cap: 4096 KB
+Arena in PSRAM
+Input shape: 1 240 320 3  dtype=9
+Arena used: 1242372 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (2193) main_task: Returned from app_main()[0m
+Runs: 100  mean: 1284.23 ms  min: 1284.21 ms  max: 1284.24 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-115
+CSV,idf,mobilenetv3_320x240,320,240,OK,PSRAM,1284.23,1284.21,1284.24,1242372,-115,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1906...
+Writing at 0x00010000 [                              ]   0.0% 0/1906 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1906/1906 bytes... 
+Wrote 4096 bytes (1906 compressed) at 0x00010000 in 0.0 seconds (685.1 kbit/s).
+Reflashing 152 changed sectors at 0x00015000...
+Flash will be erased from 0x00015000 to 0x000acfff...
+Compressed 622592 bytes to 444350...
+Writing at 0x00015000 [                              ]   0.0% 0/444350 bytes... 
+Writing at 0x0001d6df [>                             ]   3.7% 16384/444350 bytes... 
+Writing at 0x00021be8 [=>                            ]   7.4% 32768/444350 bytes... 
+Writing at 0x0002620f [==>                           ]  11.1% 49152/444350 bytes... 
+Writing at 0x0002a7cf [===>                          ]  14.7% 65536/444350 bytes... 
+Writing at 0x0002ecec [====>                         ]  18.4% 81920/444350 bytes... 
+Writing at 0x00033216 [=====>                        ]  22.1% 98304/444350 bytes... 
+Writing at 0x000376ed [======>                       ]  25.8% 114688/444350 bytes... 
+Writing at 0x0003ba7c [=======>                      ]  29.5% 131072/444350 bytes... 
+Writing at 0x00040137 [========>                     ]  33.2% 147456/444350 bytes... 
+Writing at 0x0004464c [==========>                   ]  36.9% 163840/444350 bytes... 
+Writing at 0x00048bd6 [===========>                  ]  40.6% 180224/444350 bytes... 
+Writing at 0x0004d32c [============>                 ]  44.2% 196608/444350 bytes... 
+Writing at 0x000516c0 [=============>                ]  47.9% 212992/444350 bytes... 
+Writing at 0x00055bde [==============>               ]  51.6% 229376/444350 bytes... 
+Writing at 0x0005a1ae [===============>              ]  55.3% 245760/444350 bytes... 
+Writing at 0x0005e67f [================>             ]  59.0% 262144/444350 bytes... 
+Writing at 0x00062a85 [=================>            ]  62.7% 278528/444350 bytes... 
+Writing at 0x00066ea7 [==================>           ]  66.4% 294912/444350 bytes... 
+Writing at 0x0006b2e7 [====================>         ]  70.1% 311296/444350 bytes... 
+Writing at 0x0006f73c [=====================>        ]  73.7% 327680/444350 bytes... 
+Writing at 0x00073b55 [======================>       ]  77.4% 344064/444350 bytes... 
+Writing at 0x00077f7c [=======================>      ]  81.1% 360448/444350 bytes... 
+Writing at 0x0007c3a7 [========================>     ]  84.8% 376832/444350 bytes... 
+Writing at 0x00080c42 [=========================>    ]  88.5% 393216/444350 bytes... 
+Writing at 0x000915a0 [==========================>   ]  92.2% 409600/444350 bytes... 
+Writing at 0x0009e48c [===========================>  ]  95.9% 425984/444350 bytes... 
+Writing at 0x000ab5aa [============================> ]  99.6% 442368/444350 bytes... 
+Writing at 0x000ad000 [==============================] 100.0% 444350/444350 bytes... 
+Wrote 622592 bytes (444350 compressed) at 0x00015000 in 10.9 seconds (459.0 kbit/s).
+Reflashing 3 changed sectors at 0x000ae000...
+Flash will be erased from 0x000ae000 to 0x000b0fff...
+Compressed 12288 bytes to 4513...
+Writing at 0x000ae000 [                              ]   0.0% 0/4513 bytes... 
+Writing at 0x000b1000 [==============================] 100.0% 4513/4513 bytes... 
+Wrote 12288 bytes (4513 compressed) at 0x000ae000 in 0.1 seconds (862.0 kbit/s).
+Reflashing 20 changed sectors at 0x000b2000...
+Flash will be erased from 0x000b2000 to 0x000c5fff...
+Compressed 81920 bytes to 48686...
+Writing at 0x000b2000 [                              ]   0.0% 0/48686 bytes... 
+Writing at 0x000ba88e [=========>                    ]  33.7% 16384/48686 bytes... 
+Writing at 0x000c0805 [===================>          ]  67.3% 32768/48686 bytes... 
+Writing at 0x000c6000 [==============================] 100.0% 48686/48686 bytes... 
+Wrote 81920 bytes (48686 compressed) at 0x000b2000 in 1.2 seconds (555.9 kbit/s).
+Reflashing 40 changed sectors at 0x000c7000...
+Flash will be erased from 0x000c7000 to 0x000eefff...
+Compressed 163840 bytes to 121455...
+Writing at 0x000c7000 [                              ]   0.0% 0/121455 bytes... 
+Writing at 0x000cc43f [===>                          ]  13.5% 16384/121455 bytes... 
+Writing at 0x000d1684 [=======>                      ]  27.0% 32768/121455 bytes... 
+Writing at 0x000d68ed [===========>                  ]  40.5% 49152/121455 bytes... 
+Writing at 0x000dbb34 [===============>              ]  54.0% 65536/121455 bytes... 
+Writing at 0x000e0cb4 [===================>          ]  67.4% 81920/121455 bytes... 
+Writing at 0x000e6356 [=======================>      ]  80.9% 98304/121455 bytes... 
+Writing at 0x000ebc0d [===========================>  ]  94.4% 114688/121455 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 121455/121455 bytes... 
+Wrote 163840 bytes (121455 compressed) at 0x000c7000 in 3.2 seconds (412.0 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+危�ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a5b04h (678660) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b5b2c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (199) esp_image: segment 2: paddr=000b90a4 vaddr=40374000 size=06f74h ( 28532) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d34 vaddr=4037af74 size=0591ch ( 22812) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee658 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (244) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (259) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (261) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (288) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (732) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  9336890c7...[0m
+[0;32mI (755) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (817) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_160 160x160  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_160 160x160
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 160 160 3  dtype=9
+Arena used: 462852 bytes
+Fits internal SRAM (~320 KB): no
+[0;32mI (1343) main_task: Returned from app_main()[0m
+Runs: 100  mean: 434.07 ms  min: 434.06 ms  max: 434.09 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-123
+CSV,idf,mobilenetv3_160,160,160,OK,PSRAM,434.07,434.06,434.09,462852,-123,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde6a0 bytes. Smallest app partition is 0x177000 bytes. 0x98960 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting....
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1900...
+Writing at 0x00010000 [                              ]   0.0% 0/1900 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1900/1900 bytes... 
+Wrote 4096 bytes (1900 compressed) at 0x00010000 in 0.0 seconds (687.4 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1903...
+Writing at 0x00015000 [                              ]   0.0% 0/1903 bytes... 
+Writing at 0x00016000 [==============================] 100.0% 1903/1903 bytes... 
+Wrote 4096 bytes (1903 compressed) at 0x00015000 in 0.0 seconds (698.0 kbit/s).
+Reflashing 102 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x00080fff...
+Compressed 417792 bytes to 384419...
+Writing at 0x0001b000 [                              ]   0.0% 0/384419 bytes... 
+Writing at 0x0001ffb7 [>                             ]   4.3% 16384/384419 bytes... 
+Writing at 0x000244db [=>                            ]   8.5% 32768/384419 bytes... 
+Writing at 0x00028ab3 [==>                           ]  12.8% 49152/384419 bytes... 
+Writing at 0x0002cfb8 [====>                         ]  17.0% 65536/384419 bytes... 
+Writing at 0x00031511 [=====>                        ]  21.3% 81920/384419 bytes... 
+Writing at 0x000359e9 [======>                       ]  25.6% 98304/384419 bytes... 
+Writing at 0x00039e61 [=======>                      ]  29.8% 114688/384419 bytes... 
+Writing at 0x0003e3f3 [=========>                    ]  34.1% 131072/384419 bytes... 
+Writing at 0x00042a77 [==========>                   ]  38.4% 147456/384419 bytes... 
+Writing at 0x00046df1 [===========>                  ]  42.6% 163840/384419 bytes... 
+Writing at 0x0004b4dc [=============>                ]  46.9% 180224/384419 bytes... 
+Writing at 0x0004f94f [==============>               ]  51.1% 196608/384419 bytes... 
+Writing at 0x00053d8d [===============>              ]  55.4% 212992/384419 bytes... 
+Writing at 0x000582d6 [================>             ]  59.7% 229376/384419 bytes... 
+Writing at 0x0005c8d0 [==================>           ]  63.9% 245760/384419 bytes... 
+Writing at 0x00060d17 [===================>          ]  68.2% 262144/384419 bytes... 
+Writing at 0x0006513b [====================>         ]  72.5% 278528/384419 bytes... 
+Writing at 0x0006956d [======================>       ]  76.7% 294912/384419 bytes... 
+Writing at 0x0006d98c [=======================>      ]  81.0% 311296/384419 bytes... 
+Writing at 0x00071da4 [========================>     ]  85.2% 327680/384419 bytes... 
+Writing at 0x000761d6 [=========================>    ]  89.5% 344064/384419 bytes... 
+Writing at 0x0007a5c8 [===========================>  ]  93.8% 360448/384419 bytes... 
+Writing at 0x0007e9ee [============================> ]  98.0% 376832/384419 bytes... 
+Writing at 0x00081000 [==============================] 100.0% 384419/384419 bytes... 
+Wrote 417792 bytes (384419 compressed) at 0x0001b000 in 9.7 seconds (345.8 kbit/s).
+Reflashing 43 changed sectors at 0x00082000...
+Flash will be erased from 0x00082000 to 0x000acfff...
+Compressed 176128 bytes to 49074...
+Writing at 0x00082000 [                              ]   0.0% 0/49074 bytes... 
+Writing at 0x00092cb9 [=========>                    ]  33.4% 16384/49074 bytes... 
+Writing at 0x0009fbf2 [===================>          ]  66.8% 32768/49074 bytes... 
+Writing at 0x000ad000 [==============================] 100.0% 49074/49074 bytes... 
+Wrote 176128 bytes (49074 compressed) at 0x00082000 in 1.4 seconds (1003.8 kbit/s).
+Reflashing 3 changed sectors at 0x000ae000...
+Flash will be erased from 0x000ae000 to 0x000b0fff...
+Compressed 12288 bytes to 4513...
+Writing at 0x000ae000 [                              ]   0.0% 0/4513 bytes... 
+Writing at 0x000b1000 [==============================] 100.0% 4513/4513 bytes... 
+Wrote 12288 bytes (4513 compressed) at 0x000ae000 in 0.1 seconds (917.1 kbit/s).
+Reflashing 2 changed sectors at 0x000b2000...
+Flash will be erased from 0x000b2000 to 0x000b3fff...
+Compressed 8192 bytes to 4763...
+Writing at 0x000b2000 [                              ]   0.0% 0/4763 bytes... 
+Writing at 0x000b4000 [==============================] 100.0% 4763/4763 bytes... 
+Wrote 8192 bytes (4763 compressed) at 0x000b2000 in 0.1 seconds (575.3 kbit/s).
+Reflashing 2 changed sectors at 0x000c9000...
+Flash will be erased from 0x000c9000 to 0x000cafff...
+Compressed 8192 bytes to 6092...
+Writing at 0x000c9000 [                              ]   0.0% 0/6092 bytes... 
+Writing at 0x000cb000 [==============================] 100.0% 6092/6092 bytes... 
+Wrote 8192 bytes (6092 compressed) at 0x000c9000 in 0.1 seconds (443.5 kbit/s).
+Reflashing 1 changed sector at 0x000ee000...
+Flash will be erased from 0x000ee000 to 0x000eefff...
+Compressed 4096 bytes to 1362...
+Writing at 0x000ee000 [                              ]   0.0% 0/1362 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 1362/1362 bytes... 
+Wrote 4096 bytes (1362 compressed) at 0x000ee000 in 0.0 seconds (665.5 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+�Y*�ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a5b04h (678660) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b5b2c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (199) esp_image: segment 2: paddr=000b90a4 vaddr=40374000 size=06f74h ( 28532) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d34 vaddr=4037af74 size=0591ch ( 22812) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee658 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (244) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (259) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (261) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (288) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (732) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  e032b90f1...[0m
+[0;32mI (755) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (817) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_128 128x128  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_128 128x128
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 128 128 3  dtype=9
+Arena used: 322308 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (1183) main_task: Returned from app_main()[0m
+Runs: 100  mean: 274.49 ms  min: 274.47 ms  max: 274.50 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-126
+CSV,idf,mobilenetv3_128,128,128,OK,PSRAM,274.49,274.47,274.50,322308,-126,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde370 bytes. Smallest app partition is 0x177000 bytes. 0x98c90 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde370 bytes. Smallest app partition is 0x177000 bytes. 0x98c90 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1905...
+Writing at 0x00010000 [                              ]   0.0% 0/1905 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1905/1905 bytes... 
+Wrote 4096 bytes (1905 compressed) at 0x00010000 in 0.1 seconds (606.2 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1904...
+Writing at 0x00015000 [                              ]   0.0% 0/1904 bytes... 
+Writing at 0x00016000 [==============================] 100.0% 1904/1904 bytes... 
+Wrote 4096 bytes (1904 compressed) at 0x00015000 in 0.1 seconds (639.9 kbit/s).
+Reflashing 146 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x000acfff...
+Compressed 598016 bytes to 434881...
+Writing at 0x0001b000 [                              ]   0.0% 0/434881 bytes... 
+Writing at 0x0001fee9 [>                             ]   3.8% 16384/434881 bytes... 
+Writing at 0x0002446c [=>                            ]   7.5% 32768/434881 bytes... 
+Writing at 0x00028a88 [==>                           ]  11.3% 49152/434881 bytes... 
+Writing at 0x0002d003 [===>                          ]  15.1% 65536/434881 bytes... 
+Writing at 0x00031582 [====>                         ]  18.8% 81920/434881 bytes... 
+Writing at 0x00035a4d [=====>                        ]  22.6% 98304/434881 bytes... 
+Writing at 0x00039ebb [======>                       ]  26.4% 114688/434881 bytes... 
+Writing at 0x0003e400 [========>                     ]  30.1% 131072/434881 bytes... 
+Writing at 0x00042afe [=========>                    ]  33.9% 147456/434881 bytes... 
+Writing at 0x00046e21 [==========>                   ]  37.7% 163840/434881 bytes... 
+Writing at 0x0004b4fa [===========>                  ]  41.4% 180224/434881 bytes... 
+Writing at 0x0004fa09 [============>                 ]  45.2% 196608/434881 bytes... 
+Writing at 0x00053ee3 [=============>                ]  49.0% 212992/434881 bytes... 
+Writing at 0x00058468 [==============>               ]  52.7% 229376/434881 bytes... 
+Writing at 0x0005ca2e [===============>              ]  56.5% 245760/434881 bytes... 
+Writing at 0x00060e50 [=================>            ]  60.3% 262144/434881 bytes... 
+Writing at 0x00065265 [==================>           ]  64.0% 278528/434881 bytes... 
+Writing at 0x000696dd [===================>          ]  67.8% 294912/434881 bytes... 
+Writing at 0x0006db09 [====================>         ]  71.6% 311296/434881 bytes... 
+Writing at 0x00071f68 [=====================>        ]  75.3% 327680/434881 bytes... 
+Writing at 0x0007637c [======================>       ]  79.1% 344064/434881 bytes... 
+Writing at 0x0007a735 [=======================>      ]  82.9% 360448/434881 bytes... 
+Writing at 0x0007eb28 [========================>     ]  86.7% 376832/434881 bytes... 
+Writing at 0x0008ba66 [==========================>   ]  90.4% 393216/434881 bytes... 
+Writing at 0x0009878d [===========================>  ]  94.2% 409600/434881 bytes... 
+Writing at 0x000a5c16 [============================> ]  98.0% 425984/434881 bytes... 
+Writing at 0x000ad000 [==============================] 100.0% 434881/434881 bytes... 
+Wrote 598016 bytes (434881 compressed) at 0x0001b000 in 10.5 seconds (455.4 kbit/s).
+Reflashing 3 changed sectors at 0x000ae000...
+Flash will be erased from 0x000ae000 to 0x000b0fff...
+Compressed 12288 bytes to 4504...
+Writing at 0x000ae000 [                              ]   0.0% 0/4504 bytes... 
+Writing at 0x000b1000 [==============================] 100.0% 4504/4504 bytes... 
+Wrote 12288 bytes (4504 compressed) at 0x000ae000 in 0.1 seconds (879.5 kbit/s).
+Reflashing 16 changed sectors at 0x000b2000...
+Flash will be erased from 0x000b2000 to 0x000c1fff...
+Compressed 65536 bytes to 37131...
+Writing at 0x000b2000 [                              ]   0.0% 0/37131 bytes... 
+Writing at 0x000ba5d7 [============>                 ]  44.1% 16384/37131 bytes... 
+Writing at 0x000c052c [=========================>    ]  88.2% 32768/37131 bytes... 
+Writing at 0x000c2000 [==============================] 100.0% 37131/37131 bytes... 
+Wrote 65536 bytes (37131 compressed) at 0x000b2000 in 0.9 seconds (597.8 kbit/s).
+Reflashing 2 changed sectors at 0x000c9000...
+Flash will be erased from 0x000c9000 to 0x000cafff...
+Compressed 8192 bytes to 6092...
+Writing at 0x000c9000 [                              ]   0.0% 0/6092 bytes... 
+Writing at 0x000cb000 [==============================] 100.0% 6092/6092 bytes... 
+Wrote 8192 bytes (6092 compressed) at 0x000c9000 in 0.1 seconds (447.5 kbit/s).
+Reflashing 7 changed sectors at 0x000e8000...
+Flash will be erased from 0x000e8000 to 0x000eefff...
+Compressed 28672 bytes to 17909...
+Writing at 0x000e8000 [                              ]   0.0% 0/17909 bytes... 
+Writing at 0x000edaa7 [==========================>   ]  91.5% 16384/17909 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 17909/17909 bytes... 
+Wrote 28672 bytes (17909 compressed) at 0x000e8000 in 0.6 seconds (393.4 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+��JzESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0x9 (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a57d4h (677844) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b57fc vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (198) esp_image: segment 2: paddr=000b8d74 vaddr=40374000 size=072a4h ( 29348) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d0ch (167180) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d34 vaddr=4037b2a4 size=055ech ( 21996) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee328 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (243) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (258) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (260) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (287) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (732) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  4a32ebd9c...[0m
+[0;32mI (754) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (816) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_96 96x96  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_96 96x96
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 96 96 3  dtype=9
+Arena used: 224340 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (1073) main_task: Returned from app_main()[0m
+Runs: 100  mean: 169.74 ms  min: 169.74 ms  max: 169.75 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-105
+CSV,idf,mobilenetv3_96,96,96,OK,PSRAM,169.74,169.74,169.75,224340,-105,O2,80,240,manual_run1
+Done
+[1/9] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[2/9] No install step for 'bootloader'
+[3/9] Completed 'bootloader'
+[4/9] Building CXX object esp-idf/main/CMakeFiles/__idf_main.dir/main.cpp.obj
+[5/9] Linking C static library esp-idf/main/libmain.a
+[6/9] Generating esp-idf/esp_system/ld/sections.ld
+NOTE: 
+/home/rbj/.espressif/v6.1/esp-idf/components/bt/host/nimble/Kconfig.in:1428: 
+BT_NIMBLE_MESH_PROVISIONER: 'default 0' is not a valid bool value (only 'y' and 
+'n' are allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:240: 
+FATFS_PRINT_LLI: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+NOTE: /home/rbj/.espressif/v6.1/esp-idf/components/fatfs/Kconfig:245: 
+FATFS_PRINT_FLOAT: 'default 0' is not a valid bool value (only 'y' and 'n' are 
+allowed). Value is treated as 'n'.
+Skipping linker fragment parsing, fragment files unchanged
+[7/9] Linking CXX executable bench.elf
+[8/9] Generating binary image from built executable
+esptool v5.3.1
+Creating ESP32-S3 image...
+Merged 3 ELF sections.
+Successfully created ESP32-S3 image.
+Generated /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+[9/9] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde490 bytes. Smallest app partition is 0x177000 bytes. 0x98b70 bytes (41%) free.
+Adding "flash"'s dependency "all" to list of commands with default set of options.
+Executing action: all (aliases: build)
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja all"...
+Executing action: flash
+Serial port /dev/ttyACM0:
+Connecting....
+Detecting chip type... ESP32-S3
+Running ninja in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench/build
+Executing "ninja flash"...
+[1/5] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/partition_table/partition-table.bin /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.bin
+bench.bin binary size 0xde490 bytes. Smallest app partition is 0x177000 bytes. 0x98b70 bytes (41%) free.
+[2/5] Performing build step for 'bootloader'
+[1/1] cd /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader && /home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.bin
+Bootloader binary size 0x5820 bytes. 0x27e0 bytes (31%) free.
+[3/5] No install step for 'bootloader'
+[4/5] Completed 'bootloader'
+[4/5] Running utility command for flash
+esptool --chip esp32s3 -p /dev/ttyACM0 -b 460800 --before=default-reset --after=hard-reset write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB 0x0 bootloader/bootloader.bin 0x8000 partition_table/partition-table.bin 0x10000 bench.bin --diff-with bootloader/bootloader_flashed.bin partition_table/partition-table_flashed.bin bench_flashed.bin
+esptool v5.3.1
+Serial port /dev/ttyACM0:
+Connecting...
+Connected to ESP32-S3 on /dev/ttyACM0:
+Chip type:          ESP32-S3 (QFN56) (revision v0.2)
+Features:           Wi-Fi, BT 5 (LE), Dual Core + LP Core, 240MHz, Embedded PSRAM 8MB (AP_3v3)
+Crystal frequency:  40MHz
+MAC:                d0:cf:13:00:2c:e0
+
+Uploading stub flasher...
+Running stub flasher...
+Stub flasher running.
+Changing baud rate to 460800...
+Changed.
+
+Configuring flash size...
+
+Writing 'bootloader/bootloader.bin' at 0x00000000...
+SHA digest in image updated.
+SHA digest in image updated.
+No changed sectors found, verifying if data is in flash...
+'bootloader/bootloader.bin' at 0x00000000 verified.
+
+Writing 'partition_table/partition-table.bin' at 0x00008000...
+No changed sectors found, verifying if data is in flash...
+'partition_table/partition-table.bin' at 0x00008000 verified.
+
+Writing 'bench.bin' at 0x00010000...
+Changed data sectors found, fast reflashing...
+Reflashing 1 changed sector at 0x00010000...
+Flash will be erased from 0x00010000 to 0x00010fff...
+Compressed 4096 bytes to 1905...
+Writing at 0x00010000 [                              ]   0.0% 0/1905 bytes... 
+Writing at 0x00011000 [==============================] 100.0% 1905/1905 bytes... 
+Wrote 4096 bytes (1905 compressed) at 0x00010000 in 0.0 seconds (689.1 kbit/s).
+Reflashing 1 changed sector at 0x00015000...
+Flash will be erased from 0x00015000 to 0x00015fff...
+Compressed 4096 bytes to 1904...
+Writing at 0x00015000 [                              ]   0.0% 0/1904 bytes... 
+Writing at 0x00016000 [==============================] 100.0% 1904/1904 bytes... 
+Wrote 4096 bytes (1904 compressed) at 0x00015000 in 0.0 seconds (712.2 kbit/s).
+Reflashing 146 changed sectors at 0x0001b000...
+Flash will be erased from 0x0001b000 to 0x000acfff...
+Compressed 598016 bytes to 435995...
+Writing at 0x0001b000 [                              ]   0.0% 0/435995 bytes... 
+Writing at 0x0001ff4e [>                             ]   3.8% 16384/435995 bytes... 
+Writing at 0x000244f0 [=>                            ]   7.5% 32768/435995 bytes... 
+Writing at 0x00028af9 [==>                           ]  11.3% 49152/435995 bytes... 
+Writing at 0x0002d01c [===>                          ]  15.0% 65536/435995 bytes... 
+Writing at 0x0003156c [====>                         ]  18.8% 81920/435995 bytes... 
+Writing at 0x00035a4c [=====>                        ]  22.5% 98304/435995 bytes... 
+Writing at 0x00039e6b [======>                       ]  26.3% 114688/435995 bytes... 
+Writing at 0x0003e3bb [========>                     ]  30.1% 131072/435995 bytes... 
+Writing at 0x00042a1d [=========>                    ]  33.8% 147456/435995 bytes... 
+Writing at 0x00046d20 [==========>                   ]  37.6% 163840/435995 bytes... 
+Writing at 0x0004b3a2 [===========>                  ]  41.3% 180224/435995 bytes... 
+Writing at 0x0004f85f [============>                 ]  45.1% 196608/435995 bytes... 
+Writing at 0x00053c61 [=============>                ]  48.9% 212992/435995 bytes... 
+Writing at 0x0005811c [==============>               ]  52.6% 229376/435995 bytes... 
+Writing at 0x0005c67b [===============>              ]  56.4% 245760/435995 bytes... 
+Writing at 0x00060a63 [=================>            ]  60.1% 262144/435995 bytes... 
+Writing at 0x00064e8c [==================>           ]  63.9% 278528/435995 bytes... 
+Writing at 0x000692b5 [===================>          ]  67.6% 294912/435995 bytes... 
+Writing at 0x0006d717 [====================>         ]  71.4% 311296/435995 bytes... 
+Writing at 0x00071b45 [=====================>        ]  75.2% 327680/435995 bytes... 
+Writing at 0x00075f0e [======================>       ]  78.9% 344064/435995 bytes... 
+Writing at 0x0007a34b [=======================>      ]  82.7% 360448/435995 bytes... 
+Writing at 0x0007e76b [========================>     ]  86.4% 376832/435995 bytes... 
+Writing at 0x0008acba [==========================>   ]  90.2% 393216/435995 bytes... 
+Writing at 0x00097dc2 [===========================>  ]  93.9% 409600/435995 bytes... 
+Writing at 0x000a4dcb [============================> ]  97.7% 425984/435995 bytes... 
+Writing at 0x000ad000 [==============================] 100.0% 435995/435995 bytes... 
+Wrote 598016 bytes (435995 compressed) at 0x0001b000 in 10.5 seconds (454.3 kbit/s).
+Reflashing 2 changed sectors at 0x000ae000...
+Flash will be erased from 0x000ae000 to 0x000affff...
+Compressed 8192 bytes to 4491...
+Writing at 0x000ae000 [                              ]   0.0% 0/4491 bytes... 
+Writing at 0x000b0000 [==============================] 100.0% 4491/4491 bytes... 
+Wrote 8192 bytes (4491 compressed) at 0x000ae000 in 0.1 seconds (563.5 kbit/s).
+Reflashing 20 changed sectors at 0x000b2000...
+Flash will be erased from 0x000b2000 to 0x000c5fff...
+Compressed 81920 bytes to 48935...
+Writing at 0x000b2000 [                              ]   0.0% 0/48935 bytes... 
+Writing at 0x000ba70d [=========>                    ]  33.5% 16384/48935 bytes... 
+Writing at 0x000c067c [===================>          ]  67.0% 32768/48935 bytes... 
+Writing at 0x000c6000 [==============================] 100.0% 48935/48935 bytes... 
+Wrote 81920 bytes (48935 compressed) at 0x000b2000 in 1.2 seconds (561.0 kbit/s).
+Reflashing 40 changed sectors at 0x000c7000...
+Flash will be erased from 0x000c7000 to 0x000eefff...
+Compressed 163840 bytes to 121088...
+Writing at 0x000c7000 [                              ]   0.0% 0/121088 bytes... 
+Writing at 0x000cc436 [===>                          ]  13.5% 16384/121088 bytes... 
+Writing at 0x000d1678 [=======>                      ]  27.1% 32768/121088 bytes... 
+Writing at 0x000d68e1 [===========>                  ]  40.6% 49152/121088 bytes... 
+Writing at 0x000dbb1f [===============>              ]  54.1% 65536/121088 bytes... 
+Writing at 0x000e0c95 [===================>          ]  67.7% 81920/121088 bytes... 
+Writing at 0x000e633b [=======================>      ]  81.2% 98304/121088 bytes... 
+Writing at 0x000ebbab [===========================>  ]  94.7% 114688/121088 bytes... 
+Writing at 0x000ef000 [==============================] 100.0% 121088/121088 bytes... 
+Wrote 163840 bytes (121088 compressed) at 0x000c7000 in 3.2 seconds (413.8 kbit/s).
+Verifying written data...
+Hash of data verified.
+
+Hard resetting via RTS pin...
+Executing action: monitor
+Running idf_monitor in directory /home/rbj/Downloads/friend_esp32_kit_v2/bench
+Executing "/home/rbj/.espressif/tools/python/v6.1/venv/bin/python /home/rbj/.espressif/v6.1/esp-idf/tools/idf_monitor.py -p /dev/ttyACM0 -b 115200 --toolchain-prefix xtensa-esp32s3-elf- --target esp32s3 --revision 0 /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bench.elf /home/rbj/Downloads/friend_esp32_kit_v2/bench/build/bootloader/bootloader.elf -m '/home/rbj/.espressif/tools/python/v6.1/venv/bin/python' '/home/rbj/.espressif/v6.1/esp-idf/tools/idf.py'"...
+W���ESP-ROM:esp32s3-20210327
+Build:Mar 27 2021
+rst:0x1 (POWERON),boot:0xb (SPI_FAST_FLASH_BOOT)
+SPIWP:0xee
+mode:DIO, clock div:1
+load:0x3fce2820,len:0x1664
+load:0x403c8700,len:0xf7c
+load:0x403cb700,len:0x31ec
+entry 0x403c892c
+[0;32mI (25) boot: ESP-IDF v6.1 2nd stage bootloader[0m
+[0;32mI (25) boot: compile time Aug 31 2026 15:39:05[0m
+[0;32mI (25) boot: Multicore bootloader[0m
+[0;32mI (25) boot: chip revision: v0.2[0m
+[0;32mI (28) boot: efuse block revision: v1.3[0m
+[0;32mI (31) qio_mode: Enabling default flash chip QIO[0m
+[0;32mI (36) boot.esp32s3: Boot SPI Speed : 80MHz[0m
+[0;32mI (40) boot.esp32s3: SPI Mode       : QIO[0m
+[0;32mI (43) boot.esp32s3: SPI Flash Size : 16MB[0m
+[0;32mI (47) boot: Enabling RNG early entropy source...[0m
+[0;32mI (52) boot: Partition Table:[0m
+[0;32mI (54) boot: ## Label            Usage          Type ST Offset   Length[0m
+[0;32mI (61) boot:  0 nvs              WiFi data        01 02 00009000 00006000[0m
+[0;32mI (67) boot:  1 phy_init         RF data          01 01 0000f000 00001000[0m
+[0;32mI (74) boot:  2 factory          factory app      00 00 00010000 00177000[0m
+[0;32mI (80) boot: End of partition table[0m
+[0;32mI (83) esp_image: segment 0: paddr=00010020 vaddr=3c030020 size=a58f4h (678132) map[0m
+[0;32mI (196) esp_image: segment 1: paddr=000b591c vaddr=3fc90900 size=03570h ( 13680) load[0m
+[0;32mI (199) esp_image: segment 2: paddr=000b8e94 vaddr=40374000 size=07184h ( 29060) load[0m
+[0;32mI (205) esp_image: segment 3: paddr=000c0020 vaddr=42000020 size=28d04h (167172) map[0m
+[0;32mI (233) esp_image: segment 4: paddr=000e8d2c vaddr=4037b184 size=0570ch ( 22284) load[0m
+[0;32mI (238) esp_image: segment 5: paddr=000ee440 vaddr=50000000 size=00024h (    36) load[0m
+[0;32mI (244) boot: Loaded app from partition at offset 0x10000[0m
+[0;32mI (244) boot: Disabling RNG early entropy source...[0m
+[0;32mI (258) octal_psram: vendor id    : 0x0d (AP)[0m
+[0;32mI (258) octal_psram: dev id       : 0x02 (generation 3)[0m
+[0;32mI (258) octal_psram: density      : 0x03 (64 Mbit)[0m
+[0;32mI (261) octal_psram: good-die     : 0x01 (Pass)[0m
+[0;32mI (265) octal_psram: Latency      : 0x01 (Fixed)[0m
+[0;32mI (269) octal_psram: VCC          : 0x01 (3V)[0m
+[0;32mI (273) octal_psram: SRF          : 0x01 (Fast Refresh)[0m
+[0;32mI (278) octal_psram: BurstType    : 0x01 (Hybrid Wrap)[0m
+[0;32mI (283) octal_psram: BurstLen     : 0x01 (32 Byte)[0m
+[0;32mI (288) octal_psram: Readlatency  : 0x02 (10 cycles@Fixed)[0m
+[0;32mI (293) octal_psram: DriveStrength: 0x00 (1/1)[0m
+[0;32mI (297) MSPI Timing: Enter psram timing tuning[0m
+[0;32mI (302) esp_psram: Found 8MB PSRAM device[0m
+[0;32mI (305) esp_psram: Speed: 80MHz[0m
+[0;32mI (308) cpu_start: Multicore app[0m
+[0;32mI (724) esp_psram: SPI SRAM memory test OK[0m
+[0;32mI (732) cpu_start: GPIO 44 and 43 are used as console UART I/O pins[0m
+[0;32mI (732) cpu_start: Pro cpu start user code[0m
+[0;32mI (732) cpu_start: cpu freq: 240000000 Hz[0m
+[0;32mI (734) app_init: Application information:[0m
+[0;32mI (738) app_init: Project name:     bench[0m
+[0;32mI (742) app_init: App version:      1[0m
+[0;32mI (745) app_init: Compile time:     Aug 31 2026 15:42:29[0m
+[0;32mI (750) app_init: ELF file SHA256:  5856714b2...[0m
+[0;32mI (755) app_init: ESP-IDF:          v6.1[0m
+[0;32mI (758) efuse_init: Min chip rev:     v0.0[0m
+[0;32mI (762) efuse_init: Max chip rev:     v0.99 [0m
+[0;32mI (766) efuse_init: Chip rev:         v0.2[0m
+[0;32mI (770) heap_init: Initializing. RAM available for dynamic allocation:[0m
+[0;32mI (776) heap_init: At 3FC94CE0 len 00054A30 (338 KiB): RAM[0m
+[0;32mI (781) heap_init: At 3FCE9710 len 00005724 (21 KiB): RAM[0m
+[0;32mI (786) heap_init: At 3FCF0000 len 00008000 (32 KiB): DRAM[0m
+[0;32mI (792) heap_init: At 600FE000 len 00001FE8 (7 KiB): RTCRAM[0m
+[0;32mI (797) esp_psram: Adding pool of 8192K of PSRAM memory to heap allocator[0m
+[0;32mI (804) spi_flash: detected chip: generic[0m
+[0;32mI (807) spi_flash: flash io: qio[0m
+[0;32mI (810) sleep_gpio: Configure to isolate all GPIO pins in sleep state[0m
+[0;32mI (816) sleep_gpio: Enable automatic switching of GPIO sleep configuration[0m
+[0;32mI (823) main_task: Started on CPU0[0m
+[0;32mI (843) esp_psram: Reserving pool of 32K of internal memory for DMA/internal allocations[0m
+[0;32mI (843) main_task: Calling app_main()[0m
+
+### mobilenetv3_64 64x64  stack=idf  opt=O2  psram=80MHz  cpu=240MHz  note=manual_run1
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_64 64x64
+Arena cap: 2048 KB
+Arena in PSRAM
+Input shape: 1 64 64 3  dtype=9
+Arena used: 215588 bytes
+Fits internal SRAM (~320 KB): yes
+[0;32mI (1013) main_task: Returned from app_main()[0m
+Runs: 100  mean: 101.85 ms  min: 101.84 ms  max: 101.85 ms
+Hint: copy this block and send back. Note if AllocateTensors failed.
+Output bytes=1  first=-64
+CSV,idf,mobilenetv3_64,64,64,OK,PSRAM,101.85,101.84,101.85,215588,-64,O2,80,240,manual_run1
+Done
+C          : 0x01 (3V)
+
+          : 0x01 (3V)
+
+# --- Arduino sweep 2026-09-01T18:30:46+01:00  port=pasted-from-serial-monitor ---
+8608
+HELLO 895533 psram=83HELLO 14033 psram=8388608
+HELLO 14533 psram=8388608
+HELLO 15033 psram=8388608
+HELLO 15533 psram=8388608
+HELLO 16033 psram=8388608
+HELLO 16533 psram=8388608
+HELLO 17033 psram=8388608
+HELLO 17533 psram=8388608
+HELLO 18033 psram=8388608
+HELLO 18533 psram=83888608
+HELLO 895533 psram=8388608
+HELLO 896033 psram=8388608
+HELLO 896533 psram=8388608
+HELLO 897033 psram=8388608
+HELLO 897533 psram=8388608
+HELLO 898033 psram=8388608
+HELLO 898533 psram=8388608
+HELLO 899033 psram=8388608
+HELLO 899533 psram=8388608
+HELLO 900033 psram=8388608
+HELLO 900533 psram=8388608
+HELLO 901033 psram=8388608
+HELLO 901533 psram=8388608
+HELLO 902033 psram=8388608
+HELLO 902533 psram=8388608
+HELLO 903033 psram=8388608
+HELLO 903533 psram=8388608
+HELLO 904033 psram=8388608
+HELLO 904533 psram=8388608
+HELLO 905033 psram=8388608
+HELLO 905533 psram=8388608
+HELLO 906033 psram=8388608
+HELLO 906533 psram=8388608
+### custom_64 64x64  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_64 64x64  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 64 64 3  dtype=9
+Arena used: 96264 bytes
+Runs: 100  mean: 88.55 ms  min: 88.55 ms  max: 88.56 ms
+Output bytes=1  first=-67
+CSV,arduino,custom_64,64,64,OK,PSRAM,88.55,88.55,88.56,96264,-67,Os,80,240,esptflm:manual
+### custom_96 96x96  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_96 96x96  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 96 96 3  dtype=9
+Arena used: 209288 bytes
+Runs: 100  mean: 197.53 ms  min: 197.53 ms  max: 197.53 ms
+Output bytes=1  first=16
+CSV,arduino,custom_96,96,96,OK,PSRAM,197.53,197.53,197.53,209288,16,Os,80,240,esptflm:manual
+### custom_128 128x128  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_128 128x128  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 128 128 3  dtype=9
+Arena used: 368152 bytes
+Runs: 100  mean: 591.46 ms  min: 591.45 ms  max: 591.46 ms
+Output bytes=1  first=15
+CSV,arduino,custom_128,128,128,OK,PSRAM,591.46,591.45,591.46,368152,15,Os,80,240,esptflm:manual
+### custom_160 160x160  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_160 160x160  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 160 160 3  dtype=9
+Arena used: 571288 bytes
+Runs: 100  mean: 939.94 ms  min: 939.93 ms  max: 939.94 ms
+Output bytes=1  first=24
+CSV,arduino,custom_160,160,160,OK,PSRAM,939.94,939.93,939.94,571288,24,Os,80,240,esptflm:manual
+### custom_320x240 320x240  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_320x240 320x240  lib=esptflm
+Arena cap: 4096 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 240 320 3  dtype=9
+Arena used: 1700184 bytes
+Runs: 100  mean: 2817.29 ms  min: 2817.27 ms  max: 2817.34 ms
+Output bytes=1  first=-55
+CSV,arduino,custom_320x240,320,240,OK,PSRAM,2817.29,2817.27,2817.34,1700184,-55,Os,80,240,esptflm:manual
+### custom_480x320 480x320  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: custom_480x320 480x320  lib=esptflm
+Arena cap: 5120 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 320 480 3  dtype=9
+Arena used: 3391224 bytes
+Runs: 100  mean: 5677.24 ms  min: 5677.19 ms  max: 5677.27 ms
+Output bytes=1  first=-51
+CSV,arduino,custom_480x320,480,320,OK,PSRAM,5677.24,5677.19,5677.27,3391224,-51,Os,80,240,esptflm:manual
+### mobilenetv3_64 64x64  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_64 64x64  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 64 64 3  dtype=9
+Arena used: 215560 bytes
+Runs: 100  mean: 101.66 ms  min: 101.65 ms  max: 101.68 ms
+Output bytes=1  first=-91
+CSV,arduino,mobilenetv3_64,64,64,OK,PSRAM,101.66,101.65,101.68,215560,-91,Os,80,240,esptflm:manual
+### mobilenetv3_96 96x96  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_96 96x96  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 96 96 3  dtype=9
+Arena used: 325288 bytes
+Runs: 100  mean: 177.66 ms  min: 177.66 ms  max: 177.68 ms
+Output bytes=1  first=-118
+CSV,arduino,mobilenetv3_96,96,96,OK,PSRAM,177.66,177.66,177.68,325288,-118,Os,80,240,esptflm:manual
+### mobilenetv3_128 128x128  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_128 128x128  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 128 128 3  dtype=9
+Arena used: 521896 bytes
+Runs: 100  mean: 283.46 ms  min: 283.46 ms  max: 283.47 ms
+Output bytes=1  first=-124
+CSV,arduino,mobilenetv3_128,128,128,OK,PSRAM,283.46,283.46,283.47,521896,-124,Os,80,240,esptflm:manual
+### mobilenetv3_160 160x160  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_160 160x160  lib=esptflm
+Arena cap: 2048 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 160 160 3  dtype=9
+Arena used: 773800 bytes
+Runs: 100  mean: 453.13 ms  min: 453.12 ms  max: 453.13 ms
+Output bytes=1  first=-123
+CSV,arduino,mobilenetv3_160,160,160,OK,PSRAM,453.13,453.12,453.13,773800,-123,Os,80,240,esptflm:manual
+### mobilenetv3_320x240 320x240  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_320x240 320x240  lib=esptflm
+Arena cap: 4096 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 240 320 3  dtype=9
+Arena used: 2167720 bytes
+Runs: 100  mean: 1340.72 ms  min: 1340.71 ms  max: 1340.76 ms
+Output bytes=1  first=-97
+CSV,arduino,mobilenetv3_320x240,320,240,OK,PSRAM,1340.72,1340.71,1340.76,2167720,-97,Os,80,240,esptflm:manual
+### mobilenetv3_480x320 480x320  stack=arduino  opt=Os  psram=80MHz  cpu=240MHz  note=esptflm:manual
+=== ESP32-S3 Victim Benchmark ===
+Model: mobilenetv3_480x320 480x320  lib=esptflm
+Arena cap: 5120 KB  PSRAM? yes
+Arena in PSRAM
+Input shape: 1 320 480 3  dtype=9
+Arena used: 4252840 bytes
+Runs: 100  mean: 2663.10 ms  min: 2663.08 ms  max: 2663.11 ms
+Output bytes=1  first=-109
+CSV,arduino,mobilenetv3_480x320,480,320,OK,PSRAM,2663.10,2663.08,2663.11,4252840,-109,Os,80,240,esptflm:manual

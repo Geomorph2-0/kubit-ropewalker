@@ -1,0 +1,9 @@
+{
+  "backbone": "mobilenetv3",
+  "size": "160",
+  "W": 160,
+  "H": 160,
+  "float_kb": 1562.62,
+  "int8_kb": 608.96,
+  "int8_len": 623576
+}

@@ -1,0 +1,22 @@
+# Freenove ESP32-S3 WROOM (N16R8): 16MB quad flash, 8MB octal PSRAM @80MHz,
+# 240MHz CPU. Flash mode taken from friend_esp32_kit_v2/bench/sdkconfig,
+# which actually booted and ran on this exact board (produced
+# results/DEVICE_BENCHMARK_REPORT.md) — do not switch to octal/OPI flash,
+# this module is quad-flash + octal-PSRAM, not octal-flash.
+CONFIG_IDF_TARGET="esp32s3"
+
+CONFIG_ESPTOOLPY_FLASHSIZE_16MB=y
+CONFIG_ESPTOOLPY_FLASHMODE_QIO=y
+
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+
+CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ_240=y
+
+CONFIG_PARTITION_TABLE_SINGLE_APP_LARGE=y
+
+# Guarantee %f/%.3f printf support for the boot log (score=%.3f, ms=%.1f).
+# Correct symbol (renamed from the old CONFIG_NEWLIB_NANO_FORMAT in IDF 6.x).
+# Default for esp32s3 is already 'n'; set explicitly for clarity.
+CONFIG_LIBC_NEWLIB_NANO_FORMAT=n
